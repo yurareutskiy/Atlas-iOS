@@ -42,12 +42,12 @@
 
 - (void)displayLocationEnablementAlert
 {
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Location Access Required"
-                                                        message:@"To share your location, enable location services for this app in the Privacy section of the Settings app."
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-     [alertView show];
+//    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Location Access Required"
+//                                                        message:@"To share your location, enable location services for this app in the Privacy section of the Settings app."
+//                                                       delegate:nil
+//                                              cancelButtonTitle:@"OK"
+//                                              otherButtonTitles:nil];
+//     [alertView show];
     
 }
 

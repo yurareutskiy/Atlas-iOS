@@ -22,6 +22,11 @@
 #import "ATLErrors.h"
 #import <AssetsLibrary/AssetsLibrary.h>
 
+NSString *const ATLConversationCellReuseIdentifier = @"ATLConversationCellReuseIdentifier";
+NSString *const ATLImageMIMETypePlaceholderText = @"Attachment: Image";
+NSString *const ATLLocationMIMETypePlaceholderText = @"Attachment: Location";
+NSString *const ATLGIFMIMETypePlaceholderText = @"Attachment: GIF";
+
 NSString *const ATLMIMETypeTextPlain = @"text/plain";
 NSString *const ATLMIMETypeTextHTML = @"text/HTML";
 NSString *const ATLMIMETypeImagePNG = @"image/png";
@@ -128,6 +133,45 @@ CGRect ATLImageRectConstrainedToSize(CGSize imageSize, CGSize maxSize)
     return thumbRect;
 }
 
+#pragma mark - Query Utitlites
+
+LYRQuery *ATLConversationListDefaultQueryForAuthenticatedUserID(NSString *userID)
+{
+    LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRConversation class]];
+    query.predicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:userID];
+    query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"lastMessage.receivedAt" ascending:NO]];
+    return query;
+}
+
+LYRQuery *ATLMessageListDefaultQueryForConversation(LYRConversation *conversation)
+{
+    LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];
+    query.predicate = [LYRPredicate predicateWithProperty:@"conversation" predicateOperator:LYRPredicateOperatorIsEqualTo value:conversation];
+    query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"position" ascending:YES]];
+    return query;
+}
+
+#pragma mark - Message Utilities
+
+NSString *ATLLastMessageTextForMessage(LYRMessage *lastMessage)
+{
+    NSString *lastMessageText;
+    LYRMessagePart *messagePart = lastMessage.parts[0];
+    if ([messagePart.MIMEType isEqualToString:ATLMIMETypeTextPlain]) {
+        lastMessageText = [[NSString alloc] initWithData:messagePart.data encoding:NSUTF8StringEncoding];
+    } else if ([messagePart.MIMEType isEqualToString:ATLMIMETypeImageJPEG]) {
+        lastMessageText = ATLImageMIMETypePlaceholderText;
+    } else if ([messagePart.MIMEType isEqualToString:ATLMIMETypeImagePNG]) {
+        lastMessageText = ATLImageMIMETypePlaceholderText;
+    } else if ([messagePart.MIMEType isEqualToString:ATLMIMETypeImageGIF]) {
+        lastMessageText = ATLGIFMIMETypePlaceholderText;
+    } else if ([messagePart.MIMEType isEqualToString:ATLMIMETypeLocation]) {
+        lastMessageText = ATLLocationMIMETypePlaceholderText;
+    } else {
+        lastMessageText = ATLImageMIMETypePlaceholderText;
+    }
+    return lastMessageText;
+}
 #pragma mark - Private Message Part Helpers
 
 CGSize  ATLSizeFromOriginalSizeWithConstraint(CGSize originalSize, CGFloat constraint)

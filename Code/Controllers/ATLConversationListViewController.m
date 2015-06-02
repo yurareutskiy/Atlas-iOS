@@ -22,11 +22,6 @@
 #import "ATLConversationListViewController.h"
 #import "ATLMessagingUtilities.h"
 
-static NSString *const ATLConversationCellReuseIdentifier = @"ATLConversationCellReuseIdentifier";
-static NSString *const ATLImageMIMETypePlaceholderText = @"Attachment: Image";
-static NSString *const ATLLocationMIMETypePlaceholderText = @"Attachment: Location";
-static NSString *const ATLGIFMIMETypePlaceholderText = @"Attachment: GIF";
-
 @interface ATLConversationListViewController () <UIActionSheetDelegate, LYRQueryControllerDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchDisplayDelegate>
 
 @property (nonatomic) LYRQueryController *queryController;
@@ -208,10 +203,7 @@ NSString *const ATLConversationTableViewAccessibilityIdentifier = @"Conversation
 
 - (void)setupConversationDataSource
 {
-    LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRConversation class]];
-    query.predicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:self.layerClient.authenticatedUserID];
-    query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"lastMessage.receivedAt" ascending:NO]];
-    
+    LYRQuery *query = ATLConversationListDefaultQueryForAuthenticatedUserID(self.layerClient.authenticatedUserID);
     if ([self.dataSource respondsToSelector:@selector(conversationListViewController:willLoadWithQuery:)]) {
         query = [self.dataSource conversationListViewController:self willLoadWithQuery:query];
         if (![query isKindOfClass:[LYRQuery class]]){
@@ -344,8 +336,9 @@ NSString *const ATLConversationTableViewAccessibilityIdentifier = @"Conversation
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     self.conversationToDelete = [self.queryController objectAtIndexPath:indexPath];
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Global" otherButtonTitles:@"Local", nil];
-    [actionSheet showInView:self.view];
+//    UIAlertController *controller = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Global" otherButtonTitles:@"Local", nil];
+//    [actionSheet showInView:self.view];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

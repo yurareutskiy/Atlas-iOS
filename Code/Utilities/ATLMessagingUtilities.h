@@ -24,6 +24,11 @@
 #import <ImageIO/ImageIO.h>
 #import "ATLMediaAttachment.h"
 
+extern NSString *const ATLConversationCellReuseIdentifier;
+extern NSString *const ATLImageMIMETypePlaceholderText;
+extern NSString *const ATLLocationMIMETypePlaceholderText;
+extern NSString *const ATLGIFMIMETypePlaceholderText;
+
 extern NSString *const ATLMIMETypeTextPlain;          // text/plain
 extern NSString *const ATLMIMETypeImagePNG;           // image/png
 extern NSString *const ATLMIMETypeImageJPEG;          // image/jpeg
@@ -70,6 +75,20 @@ CGSize ATLConstrainImageSizeToCellSize(CGSize imageSize);
 CGSize ATLTextPlainSize(NSString *string, UIFont *font);
 
 CGRect ATLImageRectConstrainedToSize(CGSize imageSize, CGSize maxSize);
+
+//----------------------
+// @name Query Utilities
+//----------------------
+
+LYRQuery *ATLConversationListDefaultQueryForAuthenticatedUserID(NSString *userID);
+
+LYRQuery *ATLMessageListDefaultQueryForConversation(LYRConversation *conversation);
+
+//------------------------
+// @name Message Utilities
+//------------------------
+
+NSString *ATLLastMessageTextForMessage(LYRMessage *message);
 
 //-----------------------------
 // @name Message Part Utilities

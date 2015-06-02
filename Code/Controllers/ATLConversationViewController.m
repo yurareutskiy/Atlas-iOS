@@ -195,10 +195,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 {
     if (!self.conversation) return;
     
-    LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];
-    query.predicate = [LYRPredicate predicateWithProperty:@"conversation" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.conversation];
-    query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"position" ascending:YES]];
-    
+    LYRQuery *query = ATLMessageListDefaultQueryForConversation(self.conversation);
     if ([self.dataSource respondsToSelector:@selector(conversationViewController:willLoadWithQuery:)]) {
         query = [self.dataSource conversationViewController:self willLoadWithQuery:query];
         if (![query isKindOfClass:[LYRQuery class]]){
@@ -379,10 +376,10 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     } else {
         [cell updateWithSender:nil];
     }
-    if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-        
-        [message markAsRead:nil];
-    }
+//    if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+//        
+//        [message markAsRead:nil];
+//    }
 }
 
 - (void)configureFooter:(ATLConversationCollectionViewFooter *)footer atIndexPath:(NSIndexPath *)indexPath
@@ -506,12 +503,12 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapLeftAccessoryButton:(UIButton *)leftAccessoryButton
 {
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
-                                                             delegate:self
-                                                    cancelButtonTitle:@"Cancel"
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Take Photo", @"Last Photo Taken", @"Photo Library", nil];
-    [actionSheet showInView:self.view];
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+//                                                             delegate:self
+//                                                    cancelButtonTitle:@"Cancel"
+//                                               destructiveButtonTitle:nil
+//                                                    otherButtonTitles:@"Take Photo", @"Last Photo Taken", @"Photo Library", nil];
+//    [actionSheet showInView:self.view];
 }
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapRightAccessoryButton:(UIButton *)rightAccessoryButton
@@ -732,21 +729,24 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)layerClientObjectsDidChange:(NSNotification *)notification
 {
-    if (!self.conversation) return;
-    if (!self.layerClient) return;
-    if (!notification.object) return;
-    if (![notification.object isEqual:self.layerClient]) return;
-    
-    NSArray *changes = notification.userInfo[LYRClientObjectChangesUserInfoKey];
-    for (LYRObjectChange *change in changes) {
-        if (![change.object isEqual:self.conversation]) {
-            continue;
-        }
-        if (change.type == LYRObjectChangeTypeUpdate && [change.property isEqualToString:@"participants"]) {
-            [self configureControllerForChangedParticipants];
-            break;
-        }
-    }
+//    if (!self.conversation) return;
+//    if (!self.layerClient) return;
+//    if (!notification.object) return;
+//    if (![notification.object isEqual:self.layerClient]) return;
+//    
+//    NSArray *changes = notification.userInfo[LYRClientObjectChangesUserInfoKey];
+//    for (LYRObjectChange *change in changes) {
+//        
+//        id changedObject = change.object;
+//        if (![changedObject isEqual:self.conversation]) continue;
+//        
+//        LYRObjectChangeType changeType = change.type;
+//        NSString *changedProperty = change.property;
+//        if (changeType == LYRObjectChangeTypeUpdate && [changedProperty isEqualToString:@"participants"]) {
+//            [self configureControllerForChangedParticipants];
+//            break;
+//        }
+//    }
 }
 
 - (void)handleApplicationWillEnterForeground:(NSNotification *)notification
