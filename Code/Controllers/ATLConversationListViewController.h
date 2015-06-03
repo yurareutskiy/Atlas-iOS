@@ -237,8 +237,10 @@
 /**
  @abstract The controller used to display search results.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 @property (nonatomic, readonly) UISearchDisplayController *searchController;
-
+#pragma GCC diagnostic pop
 
 ///------------------------------
 /// @name Reloading Conversations

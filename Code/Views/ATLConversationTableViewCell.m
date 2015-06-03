@@ -25,6 +25,8 @@
 
 static BOOL ATLIsDateInToday(NSDate *date)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     NSCalendarUnit dateUnits = NSEraCalendarUnit | NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
     NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:dateUnits fromDate:date];
     NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:dateUnits fromDate:[NSDate date]];
@@ -32,6 +34,7 @@ static BOOL ATLIsDateInToday(NSDate *date)
             [dateComponents month] == [todayComponents month] &&
             [dateComponents year] == [todayComponents year] &&
             [dateComponents era] == [todayComponents era]);
+#pragma GCC diagnostic pop
 }
 
 static NSDateFormatter *ATLRelativeDateFormatter()

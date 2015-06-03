@@ -205,6 +205,8 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     
     self.conversationDataSource = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient query:query];
     self.conversationDataSource.queryController.delegate = self;
+    self.conversationDataSource.numberOfSectionsBeforeFirstMessage = 1;
+    self.conversationDataSource.dateDisplayTimeInterval = self.dateDisplayTimeInterval;
     self.showingMoreMessagesIndicator = [self.conversationDataSource moreMessagesAvailable];
     [self.collectionView reloadData];
 }
@@ -259,7 +261,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
  */
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return [self.conversationDataSource.queryController numberOfObjectsInSection:0] + ATLNumberOfSectionsBeforeFirstMessageSection;
+    return [self.conversationDataSource.queryController numberOfObjectsInSection:0] + self.conversationDataSource.numberOfSectionsBeforeFirstMessage;
 }
 
 /**
@@ -315,10 +317,10 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     }
     NSAttributedString *dateString;
     NSString *participantName;
-    if ([self shouldDisplayDateLabelForSection:section]) {
+    if ([self.conversationDataSource shouldDisplayDateLabelForSection:section]) {
         dateString = [self attributedStringForMessageDate:[self.conversationDataSource messageAtCollectionViewSection:section]];
     }
-    if ([self shouldDisplaySenderLabelForSection:section]) {
+    if ([self.conversationDataSource shouldDisplaySenderLabelForSection:section]) {
         participantName = [self participantNameForMessage:[self.conversationDataSource messageAtCollectionViewSection:section]];
     }
     CGFloat height = [ATLConversationCollectionViewHeader headerHeightWithDateString:dateString participantName:participantName inView:self.collectionView];
@@ -329,10 +331,10 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 {
     if (section == ATLMoreMessagesSection) return CGSizeZero;
     NSAttributedString *readReceipt;
-    if ([self shouldDisplayReadReceiptForSection:section]) {
+    if ([self.conversationDataSource shouldDisplayReadReceiptForSection:section]) {
         readReceipt = [self attributedStringForRecipientStatusOfMessage:[self.conversationDataSource messageAtCollectionViewSection:section]];
     }
-    BOOL shouldClusterMessage = [self shouldClusterMessageAtSection:section];
+    BOOL shouldClusterMessage = [self.conversationDataSource shouldClusterMessageAtSection:section];
     CGFloat height = [ATLConversationCollectionViewFooter footerHeightWithRecipientStatus:readReceipt clustered:shouldClusterMessage];
     return CGSizeMake(0, height);
 }
@@ -371,22 +373,23 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     [cell presentMessage:message];
     [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItem];
     
-    if ([self shouldDisplayAvatarItemAtIndexPath:indexPath]) {
+    if ([self.conversationDataSource shouldDisplayAvatarItemAtIndexPath:indexPath] && self.shouldDisplayAvatarItem) {
         [cell updateWithSender:[self participantForIdentifier:message.sender.userID]];
     } else {
         [cell updateWithSender:nil];
     }
-//    if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-//        
-//        [message markAsRead:nil];
-//    }
+#ifndef WATCH_KIT_TARGET
+    if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+        [message markAsRead:nil];
+    }
+#endif
 }
 
 - (void)configureFooter:(ATLConversationCollectionViewFooter *)footer atIndexPath:(NSIndexPath *)indexPath
 {
     LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
     footer.message = message;
-    if ([self shouldDisplayReadReceiptForSection:indexPath.section]) {
+    if ([self.conversationDataSource shouldDisplayReadReceiptForSection:indexPath.section]) {
         [footer updateWithAttributedStringForRecipientStatus:[self attributedStringForRecipientStatusOfMessage:message]];
     } else {
         [footer updateWithAttributedStringForRecipientStatus:nil];
@@ -397,10 +400,10 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 {
     LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
     header.message = message;
-    if ([self shouldDisplayDateLabelForSection:indexPath.section]) {
+    if ([self.conversationDataSource shouldDisplayDateLabelForSection:indexPath.section]) {
         [header updateWithAttributedStringForDate:[self attributedStringForMessageDate:message]];
     }
-    if ([self shouldDisplaySenderLabelForSection:indexPath.section]) {
+    if ([self.conversationDataSource shouldDisplaySenderLabelForSection:indexPath.section]) {
         [header updateWithParticipantName:[self participantNameForMessage:message]];
     }
 }
@@ -417,98 +420,27 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     }
 }
 
-- (BOOL)shouldDisplayDateLabelForSection:(NSUInteger)section
-{
-    if (section < ATLNumberOfSectionsBeforeFirstMessageSection) return NO;
-    if (section == ATLNumberOfSectionsBeforeFirstMessageSection) return YES;
-    
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewSection:section];
-    LYRMessage *previousMessage = [self.conversationDataSource messageAtCollectionViewSection:section - 1];
-    if (!previousMessage.sentAt) return NO;
-    
-    NSDate *date = message.sentAt ?: [NSDate date];
-    NSTimeInterval interval = [date timeIntervalSinceDate:previousMessage.sentAt];
-    if (interval > self.dateDisplayTimeInterval) {
-        return YES;
-    }
-    return NO;
-}
-
-- (BOOL)shouldDisplaySenderLabelForSection:(NSUInteger)section
-{
-    if (self.conversation.participants.count <= 2) return NO;
-    
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewSection:section];
-    if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) return NO;
-
-    if (section > ATLNumberOfSectionsBeforeFirstMessageSection) {
-        LYRMessage *previousMessage = [self.conversationDataSource messageAtCollectionViewSection:section - 1];
-        if ([previousMessage.sender.userID isEqualToString:message.sender.userID]) {
-            return NO;
-        }
-    }
-    return YES;
-}
-
-- (BOOL)shouldDisplayReadReceiptForSection:(NSUInteger)section
-{
-    // Only show read receipt if last message was sent by currently authenticated user
-    NSInteger lastQueryControllerRow = [self.conversationDataSource.queryController numberOfObjectsInSection:0] - 1;
-    NSInteger lastSection = [self.conversationDataSource collectionViewSectionForQueryControllerRow:lastQueryControllerRow];
-    if (section != lastSection) return NO;
-
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewSection:section];
-    if (![message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) return NO;
-    
-    return YES;
-}
-
-- (BOOL)shouldClusterMessageAtSection:(NSUInteger)section
-{
-    if (section == self.collectionView.numberOfSections - 1) {
-        return NO;
-    }
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewSection:section];
-    LYRMessage *nextMessage = [self.conversationDataSource messageAtCollectionViewSection:section + 1];
-    if (!nextMessage.receivedAt) {
-        return NO;
-    }
-    NSDate *date = message.receivedAt ?: [NSDate date];
-    NSTimeInterval interval = [nextMessage.receivedAt timeIntervalSinceDate:date];
-    return (interval < 60);
-}
-
-- (BOOL)shouldDisplayAvatarItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (!self.shouldDisplayAvatarItem) return NO;
-   
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
-    if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
-        return NO;
-    }
-   
-    NSInteger lastQueryControllerRow = [self.conversationDataSource.queryController numberOfObjectsInSection:0] - 1;
-    NSInteger lastSection = [self.conversationDataSource collectionViewSectionForQueryControllerRow:lastQueryControllerRow];
-    if (indexPath.section < lastSection) {
-        LYRMessage *nextMessage = [self.conversationDataSource messageAtCollectionViewSection:indexPath.section + 1];
-        // If the next message is sent by the same user, no
-        if ([nextMessage.sender.userID isEqualToString:message.sender.userID]) {
-            return NO;
-        }
-    }
-    return YES;
-}
-
 #pragma mark - ATLMessageInputToolbarDelegate
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapLeftAccessoryButton:(UIButton *)leftAccessoryButton
 {
-//    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
-//                                                             delegate:self
-//                                                    cancelButtonTitle:@"Cancel"
-//                                               destructiveButtonTitle:nil
-//                                                    otherButtonTitles:@"Take Photo", @"Last Photo Taken", @"Photo Library", nil];
-//    [actionSheet showInView:self.view];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Take Photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypeCamera];
+    }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Last Photo Taken" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self captureLastPhotoTaken];
+    }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Photo Library" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        //
+    }]];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapRightAccessoryButton:(UIButton *)rightAccessoryButton
@@ -623,28 +555,6 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     ATLMediaAttachment *attachement = [ATLMediaAttachment mediaAttachmentWithLocation:location];
     LYRMessage *message = [self messageForMessageParts:ATLMessagePartsWithMediaAttachment(attachement) MIMEType:ATLMIMETypeLocation pushText:nil];
     [self sendMessage:message];
-}
-
-#pragma mark - UIActionSheetDelegate
-
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    switch (buttonIndex) {
-        case 0:
-            [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypeCamera];
-            break;
-            
-        case 1:
-           [self captureLastPhotoTaken];
-            break;
-          
-        case 2:
-            [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-            break;
-            
-        default:
-            break;
-    }
 }
 
 #pragma mark - Image Picking

@@ -18,5 +18,7 @@ Pod::Spec.new do |s|
   s.header_mappings_dir         = 'Code'
   s.ios.frameworks              = %w{UIKit CoreLocation MobileCoreServices}
   s.ios.deployment_target       = '7.0'
-  s.dependency                  'LayerKit', '>= 0.13.3'
+  s.xcconfig                    = { 'ENABLE_NS_ASSERTIONS' => 'YES', "GCC_PREPROCESSOR_DEFINITIONS" => '$(inherited) WATCH_KIT_TARGET=1'}
+  
+  s.dependency                  'LayerKit', '>= 0.13.0'
 end

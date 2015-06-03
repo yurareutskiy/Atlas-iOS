@@ -21,8 +21,6 @@
 #import <UIKit/UIKit.h> 
 #import <LayerKit/LayerKit.h>
 
-extern NSInteger const ATLNumberOfSectionsBeforeFirstMessageSection;
-
 /**
  @abstract The `ATLConversationDataSource` manages an `LYRQueryController` object whose data is displayed in an
  `ATLConversationViewController`. The `ATLConversationDataSource` also provides convenience methods for the translation 
@@ -51,6 +49,20 @@ extern NSInteger const ATLNumberOfSectionsBeforeFirstMessageSection;
  supplied in the designated initializer.
  */
 @property (nonatomic, readonly) LYRQueryController *queryController;
+
+@property (nonatomic) NSTimeInterval dateDisplayTimeInterval;
+
+///---------------------------------------
+/// @name Conversation UI Configuration
+///---------------------------------------
+
+@property (nonatomic) NSUInteger numberOfSectionsBeforeFirstMessage;
+
+- (BOOL)shouldDisplayDateLabelForSection:(NSUInteger)section;
+- (BOOL)shouldDisplaySenderLabelForSection:(NSUInteger)section;
+- (BOOL)shouldDisplayReadReceiptForSection:(NSUInteger)section;
+- (BOOL)shouldClusterMessageAtSection:(NSUInteger)section;
+- (BOOL)shouldDisplayAvatarItemAtIndexPath:(NSIndexPath *)indexPath;
 
 ///---------------------------------------
 /// @name Pagination
