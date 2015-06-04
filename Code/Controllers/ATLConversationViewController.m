@@ -377,9 +377,9 @@ static NSInteger const ATLMoreMessagesSection = 0;
     } else {
         [cell updateWithSender:nil];
     }
-    if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-        [message markAsRead:nil];
-    }
+//    if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+//        [message markAsRead:nil];
+//    }
 }
 
 - (void)configureFooter:(ATLConversationCollectionViewFooter *)footer atIndexPath:(NSIndexPath *)indexPath

@@ -53,7 +53,7 @@ static NSDateFormatter *ATLDateFormatter()
 - (LYRQueryController *)queryControllerForConversationList
 {
     LYRQuery *query = ATLConversationListDefaultQueryForAuthenticatedUserID(self.layerClient.authenticatedUserID);
-    query.limit = 6;
+    query.limit = 10;
     if ([self.dataSource respondsToSelector:@selector(conversationListInterfaceController:willLoadWithQuery:)]) {
         query = [self.dataSource conversationListInterfaceController:self willLoadWithQuery:query];
     }
@@ -65,7 +65,7 @@ static NSDateFormatter *ATLDateFormatter()
 - (void)configureConversationListController
 {
     NSUInteger conversationCount = [self.queryController numberOfObjectsInSection:0];
-    [self.conversationTable setNumberOfRows:10 withRowType:@"conversationRow"];
+    [self.conversationTable setNumberOfRows:conversationCount withRowType:@"conversationRow"];
     for (NSInteger i = 0; i < conversationCount; i++) {
         [self configureRowAtIndex:i];
     }

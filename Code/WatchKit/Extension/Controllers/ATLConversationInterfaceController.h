@@ -101,18 +101,38 @@
 
 @interface ATLConversationInterfaceController : WKInterfaceController
 
-@property (strong, nonatomic) IBOutlet WKInterfaceTable *messageTable;
+/**
+ @abstract The `WKInterfaceTable` in which messages are displayed.
+ @discussion Applications can customize the table via the `Interface.storyboard` file.
+ */
+@property (nonatomic) IBOutlet WKInterfaceTable *messageTable;
 
-@property (nonatomic, weak) id<ATLConversationInterfaceControllerDataSource>dataSource;
-
+/**
+ @abstract The `ATLConversationInterfaceControllerDelegate` class informs the receiver to specific events that occurred within the controller.
+ */
 @property (nonatomic, weak) id<ATLConversationInterfaceControllerDelegate>delegate;
 
-@property (nonatomic) LYRClient *layerClient;
+/**
+ @abstract The `ATLConversationInterfaceControllerDataSource` class presents an interface allowing for the display of information pertaining to specific messages in the conversation view controller
+ */
+@property (nonatomic, weak) id<ATLConversationInterfaceControllerDataSource>dataSource;
 
-@property (nonatomic) LYRConversation *conversation;
+/**
+ @abstract The `LYRClient` object used to query for messaging content to be displayed in the controller. 
+ @discussion The `LYRClient` object must be passed into the `context` dictionary as a value for the `ATLLayerClientKey` key when presenting the controller.
+ */
+@property (nonatomic, readonly) LYRClient *layerClient;
 
-@property (strong, nonatomic) IBOutlet WKInterfaceButton *replyButton;
+/**
+ @abstract The `LYRConversation` object whose messages will be displayed in the controller.
+ @discussion The `LYRConversation` object must be passed into the `context` dictionary as a value for the `ATLLayerConversationKey` key when presenting the controller.
+ */
+@property (nonatomic, readonly) LYRConversation *conversation;
 
-- (void)configureConversationViewController;
+/**
+ @abstract Configures the receiver and its content for display.
+ @discussion Subclasses must call this method in `awakeWithContext:` after any aditional setup has been perfromed.
+ */
+- (void)configureConversationController;
 
 @end

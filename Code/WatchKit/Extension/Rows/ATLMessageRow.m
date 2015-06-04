@@ -12,7 +12,7 @@
 #import "ATLOutgoingRow.h"
 #import "ATLConstants.h"
 
-@interface ATLMessageRow ()
+@interface ATLMessageRow () <LYRProgressDelegate>
 
 @property (nonatomic) LYRMessage *message;
 
@@ -60,25 +60,32 @@
 
 - (void)configureBubbleViewForImageContent
 {
-    [self.map setHidden:YES];
     if (self.message.parts.count > 1) {
-        CGRect screenRect = [[WKInterfaceDevice currentDevice] screenBounds];
-        LYRMessagePart *dimensionPart = self.message.parts[2];
-        CGSize size = ATLImageSizeForJSONData(dimensionPart.data);
-        CGFloat width = size.width;
-        CGFloat height = size.height;
-        CGFloat ratio;
-        if (width > height) {
-            ratio = height / width;
-            [self.image setWidth:screenRect.size.width];
-            [self.image setHeight:screenRect.size.width * ratio];
-        } else {
-            ratio = width /  height;
-            [self.image setWidth:screenRect.size.height *ratio];
-            [self.image setHeight:screenRect.size.height];
+        LYRMessagePart *previewPart = self.message.parts[1];
+        switch (previewPart.transferStatus) {
+            case LYRContentTransferComplete:
+                [self displayImageForMessagePart:previewPart];
+                break;
+                
+            case LYRContentTransferAwaitingUpload:
+                [self displayImageForMessagePart:previewPart];
+                break;
+                
+            case LYRContentTransferUploading:
+                [self displayImageForMessagePart:previewPart];
+                break;
+                
+            case LYRContentTransferReadyForDownload:
+                [self downloadMessagePart:previewPart];
+                break;
+                
+            case LYRContentTransferDownloading:
+                [self downloadMessagePart:previewPart];
+                break;
+
+            default:
+                break;
         }
-        LYRMessagePart *part = self.message.parts[1];
-        [self.image setImageData:part.data];
     }
     
     [self.mapGroup setHidden:YES];
@@ -87,8 +94,10 @@
 
 - (void)configureBubbleViewForGIFContent
 {
+    [self.label setText:@"GIF's NOT YET SUPPORTED"];
+    
+    [self.imageGroup setHidden:YES];
     [self.mapGroup setHidden:YES];
-    [self.labelGroup setHidden:YES];
 }
 
 - (void)configureBubbleViewForLocationContent
@@ -107,6 +116,52 @@
     
     [self.labelGroup setHidden:YES];
     [self.imageGroup setHidden:YES];
+}
+
+#pragma mark - Image Handling
+
+- (void)displayImageForMessagePart:(LYRMessagePart *)part
+{
+    CGRect screenRect = [[WKInterfaceDevice currentDevice] screenBounds];
+    LYRMessagePart *dimensionPart = self.message.parts[2];
+    
+    CGSize size = ATLImageSizeForJSONData(dimensionPart.data);
+    CGFloat width = size.width;
+    CGFloat height = size.height;
+    
+    CGFloat ratio;
+    if (width > height) {
+        ratio = height / width;
+        [self.image setWidth:screenRect.size.width];
+        [self.image setHeight:screenRect.size.width * ratio];
+    } else {
+        ratio = width /  height;
+        [self.image setWidth:screenRect.size.height *ratio];
+        [self.image setHeight:screenRect.size.height];
+    }
+    
+    [self.image setImageData:part.data];
+}
+
+- (void)downloadMessagePart:(LYRMessagePart *)part
+{
+    NSError *error;
+    LYRProgress *progress = [part downloadContent:&error];
+    if (progress) {
+        progress.delegate = self;
+    } else {
+        NSLog(@"Failed downloading message part with error: %@", error);
+    }
+}
+
+#pragma mark - LYRProgress Delegate
+
+- (void)progressDidChange:(LYRProgress *)progress
+{
+    if (progress.fractionCompleted == 1.0) {
+        LYRMessagePart *part = self.message.parts[1];
+        [self displayImageForMessagePart:part];
+    }
 }
 
 @end

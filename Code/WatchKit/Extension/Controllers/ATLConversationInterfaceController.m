@@ -20,6 +20,8 @@
 @interface ATLConversationInterfaceController () <LYRProgressDelegate, LYRQueryControllerDelegate>
 
 @property (nonatomic) ATLConversationDataSource *conversationDataSource;
+@property (nonatomic, readwrite) LYRClient *layerClient;
+@property (nonatomic, readwrite) LYRConversation *conversation;
 
 @end
 
@@ -41,14 +43,6 @@
     [self.messageTable scrollToRowAtIndex:lastIndex];
 }
 
-- (void)didDeactivate
-{
-    [super didDeactivate];
-    self.conversationDataSource = nil;
-    self.layerClient = nil;
-    self.conversation = nil;
-}
-
 - (ATLConversationDataSource *)dataSourceForConversation
 {
     LYRQuery *query = ATLMessageListDefaultQueryForConversation(self.conversation);
@@ -64,7 +58,7 @@
     return conversationDatasource ;
 }
 
-- (void)configureConversationViewController
+- (void)configureConversationController
 {
     NSUInteger messageCount = [self.conversationDataSource.queryController numberOfObjectsInSection:0];
     [self calculateRowsForMessageCount:messageCount];
