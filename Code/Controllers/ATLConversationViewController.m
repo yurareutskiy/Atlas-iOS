@@ -377,11 +377,9 @@ static NSInteger const ATLMoreMessagesSection = 0;
     } else {
         [cell updateWithSender:nil];
     }
-#ifndef WATCH_KIT_TARGET
     if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
         [message markAsRead:nil];
     }
-#endif
 }
 
 - (void)configureFooter:(ATLConversationCollectionViewFooter *)footer atIndexPath:(NSIndexPath *)indexPath
@@ -436,9 +434,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
         [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
     }]];
     
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        //
-    }]];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
@@ -620,24 +616,24 @@ static NSInteger const ATLMoreMessagesSection = 0;
 
 - (void)layerClientObjectsDidChange:(NSNotification *)notification
 {
-//    if (!self.conversation) return;
-//    if (!self.layerClient) return;
-//    if (!notification.object) return;
-//    if (![notification.object isEqual:self.layerClient]) return;
-//    
-//    NSArray *changes = notification.userInfo[LYRClientObjectChangesUserInfoKey];
-//    for (LYRObjectChange *change in changes) {
-//        
-//        id changedObject = change.object;
-//        if (![changedObject isEqual:self.conversation]) continue;
-//        
-//        LYRObjectChangeType changeType = change.type;
-//        NSString *changedProperty = change.property;
-//        if (changeType == LYRObjectChangeTypeUpdate && [changedProperty isEqualToString:@"participants"]) {
-//            [self configureControllerForChangedParticipants];
-//            break;
-//        }
-//    }
+    if (!self.conversation) return;
+    if (!self.layerClient) return;
+    if (!notification.object) return;
+    if (![notification.object isEqual:self.layerClient]) return;
+    
+    NSArray *changes = notification.userInfo[LYRClientObjectChangesUserInfoKey];
+    for (LYRObjectChange *change in changes) {
+        
+        id changedObject = change.object;
+        if (![changedObject isEqual:self.conversation]) continue;
+        
+        LYRObjectChangeType changeType = change.type;
+        NSString *changedProperty = change.property;
+        if (changeType == LYRObjectChangeTypeUpdate && [changedProperty isEqualToString:@"participants"]) {
+            [self configureControllerForChangedParticipants];
+            break;
+        }
+    }
 }
 
 - (void)handleApplicationWillEnterForeground:(NSNotification *)notification

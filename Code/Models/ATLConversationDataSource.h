@@ -52,7 +52,7 @@
 /**
  @abstract Excutes the query supplied in the initializer and prepares the query controller for use. 
  @discussion The `ATLConversationDataSource` provides an explict execute method so that configuration may be performed prior to executing the query. 
- @error A pointer to a `NSError` object that will describe any failure that occured. 
+ @error A pointer to an `NSError` object that will describe any failure that occured.
  @return A boolean value that indicates whether or not the query was successful.
  */
 - (BOOL)executeWithError:(NSError **)error;
@@ -62,7 +62,7 @@
 ///---------------------------------------
 
 /**
- @abstract The time interval used to determine whehter or not a date string should be displayed in a conversation view.
+ @abstract The time interval used to determine whehter or not a date string should be displayed in a conversation view section.
  @discussion If the time elapsed between two messages is greater than the `dateDisplayTimeInterval`, a date will be displayed.
  @defualt `3600`
  */
@@ -98,7 +98,7 @@
 ///---------------------------------------
 
 /**
- @abstract The number of sections in a list prior to the first message.
+ @abstract The number of sections intended to be used prior to the first message.
  @discussion Value is used to offset query controller calculations so that a `Loading Messages` spinner may be displayed during pagination.
  @default `1`
  */

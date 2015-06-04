@@ -15,9 +15,6 @@
 
 #import "ATLIncomingRow.h"
 #import "ATLOutgoingRow.h"
-#import "ATLHeaderRow.h"
-#import "ATLFooterRow.h"
-
 #import "ATLMessagingUtilities.h"
 
 @interface ATLConversationInterfaceController () <LYRProgressDelegate, LYRQueryControllerDelegate>
@@ -123,33 +120,16 @@
 
 - (IBAction)replyButtonTapped:(id)sender
 {
-    [self presentTextInputControllerWithSuggestions:@[@"Taste", @"Taste Test", @"Taste Case",@"A Taste for you", @"Gift", @"Pac o'clock", @"Ride or Die", @"Go Seahawks", @"UCLA > USC", @"Expo Growth > Log Growth"] allowedInputMode:WKTextInputModeAllowAnimatedEmoji completion:^(NSArray *results) {
+    [self presentTextInputControllerWithSuggestions:@[@"Test"] allowedInputMode:WKTextInputModeAllowAnimatedEmoji completion:^(NSArray *results) {
         NSString *messageText = results[0];
         if (messageText) {
             ATLMediaAttachment *mediaAttachment = [ATLMediaAttachment mediaAttachmentWithText:messageText];
-            NSOrderedSet *messages = [self messagesForMediaAttachments:@[mediaAttachment]];
+            NSOrderedSet *messages = [self defaultMessagesForMediaAttachments:@[mediaAttachment]];
             for (LYRMessage *message in messages) {
                 [self sendMessage:message];
             }
         }
     }];
-}
-
-- (NSOrderedSet *)messagesForMediaAttachments:(NSArray *)mediaAttachments
-{
-    NSOrderedSet *messages;
-    if ([self.delegate respondsToSelector:@selector(conversationInterfaceController:messagesForMediaAttachments:)]) {
-        messages = [self.delegate conversationInterfaceController:self messagesForMediaAttachments:mediaAttachments];
-        // If delegate returns an empty set, don't send any messages.
-        if (messages && !messages.count) {
-            return nil;
-        }
-    }
-    // If delegate returns nil, we fall back to default behavior.
-    if (!messages) {
-        messages = [self defaultMessagesForMediaAttachments:mediaAttachments];
-    }
-    return messages;
 }
 
 - (NSOrderedSet *)defaultMessagesForMediaAttachments:(NSArray *)mediaAttachments

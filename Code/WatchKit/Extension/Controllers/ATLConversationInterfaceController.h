@@ -42,16 +42,6 @@
  */
 - (void)conversationInterfaceController:(ATLConversationInterfaceController *)viewController didSelectMessage:(LYRMessage *)message;
 
-/**
- * DO NOT NEED
- */
-- (CGFloat)conversationInterfaceController:(ATLConversationInterfaceController *)viewController heightForMessage:(LYRMessage *)message withCellWidth:(CGFloat)cellWidth;
-
-/**
- * WILL BE CHANGED
- */
-- (NSOrderedSet *)conversationInterfaceController:(ATLConversationInterfaceController *)viewController messagesForMediaAttachments:(NSArray *)mediaAttachments;
-
 @end
 
 ///---------------------------------------
@@ -89,28 +79,6 @@
 - (NSAttributedString *)conversationInterfaceController:(ATLConversationInterfaceController *)conversationInterfaceController attributedStringForDisplayOfRecipientStatus:(NSDictionary *)recipientStatus;
 
 @optional
-
-// Changed a bit
-/**
- @abstract Asks the data source for the collection view cell reuse identifier for a message.
- @param viewController The `ATLConversationInterfaceController` requesting the string.
- @param message The `LYRMessage` object to display in the cell.
- @return A string that will be used to dequeue a cell from the collection view.
- @discussion Applications that wish to use custom cells in the `ATLConversationInterfaceController` must first register a reuse identifier for their custom cell class.
- This can be done via a call to `registerClass:forMessageCellWithReuseIdentifier:`. Applications should then return the registered reuse identifier only when necessary.
- If `nil` is returned, the collection view will default to internal values for reuse identifiers.
- */
-- (NSString *)conversationInterfaceController:(ATLConversationInterfaceController *)viewController reuseIdentifierForMessage:(LYRMessage *)message;
-
-/**
- @abstract Asks the data source to provide a conversation for a set of participants.
- @param viewController The `ATLConversationInterfaceController` requesting the conversation.
- @param participants A set of objects conforming to `ATLParticipant`.
- @return A conversation that will be used by the conversation view controller.
- @discussion Applications may implement this method to override the default behavior which is described below.
- If this method is not implemented or `nil` is returned, the conversation view controller will default to 1) disabling delivery receipts if there are more than five participants and 2) using an existing conversation between the participants if one already exists.
- */
-- (LYRConversation *)conversationInterfaceController:(ATLConversationInterfaceController *)viewController conversationWithParticipants:(NSSet *)participants;
 
 /**
  @abstract Asks the data source to configure the default query used to fetch content for the controller if necessary.
