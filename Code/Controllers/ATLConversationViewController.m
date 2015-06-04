@@ -32,7 +32,7 @@
 
 @interface ATLConversationViewController () <UICollectionViewDataSource, UICollectionViewDelegate, ATLMessageInputToolbarDelegate, UIActionSheetDelegate, LYRQueryControllerDelegate, CLLocationManagerDelegate>
 
-@property (nonatomic) ATLConversationDataSource *conversationDataSource;
+@property (nonatomic) ATLConversationDataSource *conversationQueryController;
 @property (nonatomic) BOOL shouldDisplayAvatarItem;
 @property (nonatomic) NSMutableOrderedSet *typingParticipantIDs;
 @property (nonatomic) NSMutableArray *objectChanges;
@@ -52,11 +52,6 @@
 @implementation ATLConversationViewController
 
 static NSInteger const ATLMoreMessagesSection = 0;
-static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
-static NSString *const ATLDefaultPushAlertGIF = @"sent you a GIF.";
-static NSString *const ATLDefaultPushAlertImage = @"sent you a photo.";
-static NSString *const ATLDefaultPushAlertLocation = @"sent you a location.";
-static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 + (instancetype)conversationViewControllerWithLayerClient:(LYRClient *)layerClient;
 {
@@ -123,7 +118,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    if (!self.conversationDataSource) {
+    if (!self.conversationQueryController) {
         [self fetchLayerMessages];
     }
     [self configureControllerForConversation];
@@ -184,7 +179,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     if (conversation) {
         [self fetchLayerMessages];
     } else {
-        self.conversationDataSource = nil;
+        self.conversationQueryController = nil;
         [self.collectionView reloadData];
     }
     CGSize contentSize = self.collectionView.collectionViewLayout.collectionViewContentSize;
@@ -203,11 +198,11 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
         }
     }
     
-    self.conversationDataSource = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient query:query];
-    self.conversationDataSource.queryController.delegate = self;
-    self.conversationDataSource.numberOfSectionsBeforeFirstMessage = 1;
-    self.conversationDataSource.dateDisplayTimeInterval = self.dateDisplayTimeInterval;
-    self.showingMoreMessagesIndicator = [self.conversationDataSource moreMessagesAvailable];
+    self.conversationQueryController = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient query:query];
+    self.conversationQueryController.queryController.delegate = self;
+    self.conversationQueryController.numberOfSectionsBeforeFirstMessage = 1;
+    self.conversationQueryController.dateDisplayTimeInterval = self.dateDisplayTimeInterval;
+    self.showingMoreMessagesIndicator = [self.conversationQueryController moreMessagesAvailable];
     [self.collectionView reloadData];
 }
 
@@ -261,7 +256,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
  */
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return [self.conversationDataSource.queryController numberOfObjectsInSection:0] + self.conversationDataSource.numberOfSectionsBeforeFirstMessage;
+    return [self.conversationQueryController.queryController numberOfObjectsInSection:0] + self.conversationQueryController.numberOfSectionsBeforeFirstMessage;
 }
 
 /**
@@ -269,7 +264,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
  */
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
+    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
     NSString *reuseIdentifier = [self reuseIdentifierForMessage:message atIndexPath:indexPath];
     
     UICollectionViewCell<ATLMessagePresenting> *cell =  [self.collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
@@ -281,7 +276,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self notifyDelegateOfMessageSelection:[self.conversationDataSource messageAtCollectionViewIndexPath:indexPath]];
+    [self notifyDelegateOfMessageSelection:[self.conversationQueryController messageAtCollectionViewIndexPath:indexPath]];
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
@@ -317,11 +312,11 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     }
     NSAttributedString *dateString;
     NSString *participantName;
-    if ([self.conversationDataSource shouldDisplayDateLabelForSection:section]) {
-        dateString = [self attributedStringForMessageDate:[self.conversationDataSource messageAtCollectionViewSection:section]];
+    if ([self.conversationQueryController shouldDisplayDateLabelForSection:section]) {
+        dateString = [self attributedStringForMessageDate:[self.conversationQueryController messageAtCollectionViewSection:section]];
     }
-    if ([self.conversationDataSource shouldDisplaySenderLabelForSection:section]) {
-        participantName = [self participantNameForMessage:[self.conversationDataSource messageAtCollectionViewSection:section]];
+    if ([self.conversationQueryController shouldDisplaySenderLabelForSection:section]) {
+        participantName = [self participantNameForMessage:[self.conversationQueryController messageAtCollectionViewSection:section]];
     }
     CGFloat height = [ATLConversationCollectionViewHeader headerHeightWithDateString:dateString participantName:participantName inView:self.collectionView];
     return CGSizeMake(0, height);
@@ -331,10 +326,10 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 {
     if (section == ATLMoreMessagesSection) return CGSizeZero;
     NSAttributedString *readReceipt;
-    if ([self.conversationDataSource shouldDisplayReadReceiptForSection:section]) {
-        readReceipt = [self attributedStringForRecipientStatusOfMessage:[self.conversationDataSource messageAtCollectionViewSection:section]];
+    if ([self.conversationQueryController shouldDisplayReadReceiptForSection:section]) {
+        readReceipt = [self attributedStringForRecipientStatusOfMessage:[self.conversationQueryController messageAtCollectionViewSection:section]];
     }
-    BOOL shouldClusterMessage = [self.conversationDataSource shouldClusterMessageAtSection:section];
+    BOOL shouldClusterMessage = [self.conversationQueryController shouldClusterMessageAtSection:section];
     CGFloat height = [ATLConversationCollectionViewFooter footerHeightWithRecipientStatus:readReceipt clustered:shouldClusterMessage];
     return CGSizeMake(0, height);
 }
@@ -373,7 +368,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     [cell presentMessage:message];
     [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItem];
     
-    if ([self.conversationDataSource shouldDisplayAvatarItemAtIndexPath:indexPath] && self.shouldDisplayAvatarItem) {
+    if ([self.conversationQueryController shouldDisplayAvatarItemAtIndexPath:indexPath] && self.shouldDisplayAvatarItem) {
         [cell updateWithSender:[self participantForIdentifier:message.sender.userID]];
     } else {
         [cell updateWithSender:nil];
@@ -387,9 +382,9 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)configureFooter:(ATLConversationCollectionViewFooter *)footer atIndexPath:(NSIndexPath *)indexPath
 {
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
+    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
     footer.message = message;
-    if ([self.conversationDataSource shouldDisplayReadReceiptForSection:indexPath.section]) {
+    if ([self.conversationQueryController shouldDisplayReadReceiptForSection:indexPath.section]) {
         [footer updateWithAttributedStringForRecipientStatus:[self attributedStringForRecipientStatusOfMessage:message]];
     } else {
         [footer updateWithAttributedStringForRecipientStatus:nil];
@@ -398,12 +393,12 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)configureHeader:(ATLConversationCollectionViewHeader *)header atIndexPath:(NSIndexPath *)indexPath
 {
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
+    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
     header.message = message;
-    if ([self.conversationDataSource shouldDisplayDateLabelForSection:indexPath.section]) {
+    if ([self.conversationQueryController shouldDisplayDateLabelForSection:indexPath.section]) {
         [header updateWithAttributedStringForDate:[self attributedStringForMessageDate:message]];
     }
-    if ([self.conversationDataSource shouldDisplaySenderLabelForSection:indexPath.section]) {
+    if ([self.conversationQueryController shouldDisplaySenderLabelForSection:indexPath.section]) {
         [header updateWithParticipantName:[self participantNameForMessage:message]];
     }
 }
@@ -412,7 +407,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (CGFloat)defaultCellHeightForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
+    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
     if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
         return [ATLOutgoingMessageCollectionViewCell cellHeightForMessage:message inView:self.view];
     } else {
@@ -478,38 +473,19 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     NSMutableOrderedSet *messages = [NSMutableOrderedSet new];
     for (ATLMediaAttachment *attachment in mediaAttachments){
         NSArray *messageParts = ATLMessagePartsWithMediaAttachment(attachment);
-        LYRMessage *message = [self messageForMessageParts:messageParts MIMEType:attachment.mediaMIMEType pushText:(([attachment.mediaMIMEType isEqualToString:ATLMIMETypeTextPlain]) ? attachment.textRepresentation : nil)];
-        if (message)[messages addObject:message];
+        NSString *pushText;
+        if ([attachment.mediaMIMEType isEqualToString:ATLMIMETypeTextPlain]) {
+            pushText = attachment.textRepresentation;
+        } else {
+            NSString *senderName = [[self participantForIdentifier:self.layerClient.authenticatedUserID] fullName];
+            pushText = ATLPushTextForMessage(senderName, attachment.mediaMIMEType);
+        }
+        LYRMessage *message = ATLMessageForMessageParameters(self.layerClient, messageParts, pushText);
+        if (message) {
+            [messages addObject:message];
+        }
     }
     return messages;
-}
-
-- (LYRMessage *)messageForMessageParts:(NSArray *)parts MIMEType:(NSString *)MIMEType pushText:(NSString *)pushText;
-{
-    NSString *senderName = [[self participantForIdentifier:self.layerClient.authenticatedUserID] fullName];
-    NSString *completePushText;
-    if (!pushText) {
-        if ([MIMEType isEqualToString:ATLMIMETypeImageGIF]) {
-            completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertGIF];
-        } else if ([MIMEType isEqualToString:ATLMIMETypeImagePNG] || [MIMEType isEqualToString:ATLMIMETypeImageJPEG]) {
-            completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertImage];
-        } else if ([MIMEType isEqualToString:ATLMIMETypeLocation]) {
-            completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertLocation];
-        } else {
-            completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertText];
-        }
-    } else {
-        completePushText = [NSString stringWithFormat:@"%@: %@", senderName, pushText];
-    }
-
-    NSDictionary *pushOptions = @{LYRMessageOptionsPushNotificationAlertKey : completePushText,
-                                  LYRMessageOptionsPushNotificationSoundNameKey : ATLPushNotificationSoundName};
-    NSError *error;
-    LYRMessage *message = [self.layerClient newMessageWithParts:parts options:pushOptions error:&error];
-    if (error) {
-        return nil;
-    }
-    return message;
 }
 
 - (void)sendMessage:(LYRMessage *)message
@@ -553,7 +529,8 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 - (void)sendMessageWithLocation:(CLLocation *)location
 {
     ATLMediaAttachment *attachement = [ATLMediaAttachment mediaAttachmentWithLocation:location];
-    LYRMessage *message = [self messageForMessageParts:ATLMessagePartsWithMediaAttachment(attachement) MIMEType:ATLMIMETypeLocation pushText:nil];
+    NSOrderedSet *messages = [self defaultMessagesForMediaAttachments:@[attachement]];
+    LYRMessage *message = messages.firstObject;
     [self sendMessage:message];
 }
 
@@ -752,14 +729,14 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     BOOL nearTop = distanceFromTop <= minimumDistanceFromTopToTriggerLoadingMore;
     if (!nearTop) return;
 
-    [self.conversationDataSource expandPaginationWindow];
+    [self.conversationQueryController expandPaginationWindow];
 }
 
 - (void)configureMoreMessagesIndicatorVisibility
 {
     if (self.collectionView.isDragging) return;
     if (self.collectionView.isDecelerating) return;
-    BOOL moreMessagesAvailable = [self.conversationDataSource moreMessagesAvailable];
+    BOOL moreMessagesAvailable = [self.conversationQueryController moreMessagesAvailable];
     if (moreMessagesAvailable == self.showingMoreMessagesIndicator) return;
     self.showingMoreMessagesIndicator = moreMessagesAvailable;
     [self reloadCollectionViewAdjustingForContentHeightChange];
@@ -834,9 +811,9 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 - (void)reloadCellForMessage:(LYRMessage *)message
 {
     dispatch_async(self.animationQueue, ^{
-        NSIndexPath *indexPath = [self.conversationDataSource.queryController indexPathForObject:message];
+        NSIndexPath *indexPath = [self.conversationQueryController.queryController indexPathForObject:message];
         if (indexPath) {
-            NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:indexPath];
+            NSIndexPath *collectionViewIndexPath = [self.conversationQueryController collectionViewIndexPathForQueryControllerIndexPath:indexPath];
             if (collectionViewIndexPath) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.collectionView reloadItemsAtIndexPaths:@[ collectionViewIndexPath ]];
@@ -850,7 +827,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 {
     dispatch_async(self.animationQueue, ^{
         // Query for the All the Messages in the set of identifiers we have where sent by user == participantIdentifier
-        LYRQuery *messageIdentifiersQuery = [self.conversationDataSource.queryController.query copy];
+        LYRQuery *messageIdentifiersQuery = [self.conversationQueryController.queryController.query copy];
         messageIdentifiersQuery.resultType = LYRQueryResultTypeIdentifiers;
         NSError *error = nil;
         NSOrderedSet *messageIdentifiers = [self.layerClient executeQuery:messageIdentifiersQuery error:&error];
@@ -870,7 +847,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
             return;
         }
         
-        NSDictionary *objectIdentifiersToIndexPaths = [self.conversationDataSource.queryController indexPathsForObjectsWithIdentifiers:messageIdentifiersToReload.set];
+        NSDictionary *objectIdentifiersToIndexPaths = [self.conversationQueryController.queryController indexPathsForObjectsWithIdentifiers:messageIdentifiersToReload.set];
         NSArray *indexPaths = [objectIdentifiersToIndexPaths allValues];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.collectionView reloadItemsAtIndexPaths:indexPaths];
@@ -906,7 +883,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     CGFloat width = self.collectionView.bounds.size.width;
     CGFloat height = 0;
     if ([self.delegate respondsToSelector:@selector(conversationViewController:heightForMessage:withCellWidth:)]) {
-        LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
+        LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
         height = [self.delegate conversationViewController:self heightForMessage:message withCellWidth:width];
     }
     if (!height) {
@@ -1007,16 +984,16 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
           forChangeType:(LYRQueryControllerChangeType)type
            newIndexPath:(NSIndexPath *)newIndexPath
 {
-    if (self.conversationDataSource.isExpandingPaginationWindow) return;
-    NSInteger currentIndex = indexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:indexPath.row] : NSNotFound;
-    NSInteger newIndex = newIndexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:newIndexPath.row] : NSNotFound;
+    if (self.conversationQueryController.isExpandingPaginationWindow) return;
+    NSInteger currentIndex = indexPath ? [self.conversationQueryController collectionViewSectionForQueryControllerRow:indexPath.row] : NSNotFound;
+    NSInteger newIndex = newIndexPath ? [self.conversationQueryController collectionViewSectionForQueryControllerRow:newIndexPath.row] : NSNotFound;
     [self.objectChanges addObject:[ATLDataSourceChange changeObjectWithType:type newIndex:newIndex currentIndex:currentIndex]];
 }
 
 - (void)queryControllerDidChangeContent:(LYRQueryController *)queryController
 {
-    if (self.conversationDataSource.isExpandingPaginationWindow) {
-        self.showingMoreMessagesIndicator = [self.conversationDataSource moreMessagesAvailable];
+    if (self.conversationQueryController.isExpandingPaginationWindow) {
+        self.showingMoreMessagesIndicator = [self.conversationQueryController moreMessagesAvailable];
         [self reloadCollectionViewAdjustingForContentHeightChange];
         return;
     }
@@ -1075,21 +1052,21 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     // Since each section's content depends on other messages, we need to update each visible section even when a section's corresponding message has not changed. This also solves the issue with LYRQueryControllerChangeTypeUpdate (see above).
     for (UICollectionViewCell<ATLMessagePresenting> *cell in [self.collectionView visibleCells]) {
         NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
-        LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
+        LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
         [self configureCell:cell forMessage:message indexPath:indexPath];
     }
     
     for (ATLConversationCollectionViewHeader *header in self.sectionHeaders) {
-        NSIndexPath *queryControllerIndexPath = [self.conversationDataSource.queryController indexPathForObject:header.message];
+        NSIndexPath *queryControllerIndexPath = [self.conversationQueryController.queryController indexPathForObject:header.message];
         if (!queryControllerIndexPath) continue;
-        NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
+        NSIndexPath *collectionViewIndexPath = [self.conversationQueryController collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
         [self configureHeader:header atIndexPath:collectionViewIndexPath];
     }
     
     for (ATLConversationCollectionViewFooter *footer in self.sectionFooters) {
-        NSIndexPath *queryControllerIndexPath = [self.conversationDataSource.queryController indexPathForObject:footer.message];
+        NSIndexPath *queryControllerIndexPath = [self.conversationQueryController.queryController indexPathForObject:footer.message];
         if (!queryControllerIndexPath) continue;
-        NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
+        NSIndexPath *collectionViewIndexPath = [self.conversationQueryController collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
         [self configureFooter:footer atIndexPath:collectionViewIndexPath];
     }
 }

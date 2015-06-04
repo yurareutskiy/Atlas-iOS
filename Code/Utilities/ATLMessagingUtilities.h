@@ -90,6 +90,10 @@ LYRQuery *ATLMessageListDefaultQueryForConversation(LYRConversation *conversatio
 
 NSString *ATLLastMessageTextForMessage(LYRMessage *message);
 
+NSString *ATLPushTextForMessage(NSString *senderName, NSString *MIMEType);
+
+LYRMessage *ATLMessageForMessageParameters(LYRClient *client, NSArray *messageParts, NSString *pushText);
+
 //-----------------------------
 // @name Message Part Utilities
 //-----------------------------

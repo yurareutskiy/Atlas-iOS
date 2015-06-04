@@ -46,6 +46,12 @@ NSString *const ATLImagePreviewHeightKey = @"height";
 NSString *const ATLLocationLatitudeKey = @"lat";
 NSString *const ATLLocationLongitudeKey = @"lon";
 
+static NSString *const ATLDefaultPushAlertGIF = @"sent you a GIF.";
+static NSString *const ATLDefaultPushAlertImage = @"sent you a photo.";
+static NSString *const ATLDefaultPushAlertLocation = @"sent you a location.";
+static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
+static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
+
 #pragma mark - Max Cell Dimensions
 
 CGFloat ATLMaxCellWidth()
@@ -172,6 +178,34 @@ NSString *ATLLastMessageTextForMessage(LYRMessage *lastMessage)
     }
     return lastMessageText;
 }
+
+NSString *ATLPushTextForMessage(NSString *senderName, NSString *MIMEType)
+{
+    NSString *completePushText;
+    if ([MIMEType isEqualToString:ATLMIMETypeImageGIF]) {
+        completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertGIF];
+    } else if ([MIMEType isEqualToString:ATLMIMETypeImagePNG] || [MIMEType isEqualToString:ATLMIMETypeImageJPEG]) {
+        completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertImage];
+    } else if ([MIMEType isEqualToString:ATLMIMETypeLocation]) {
+        completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertLocation];
+    } else {
+        completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertText];
+    }
+    return completePushText;
+}
+
+LYRMessage *ATLMessageForMessageParameters(LYRClient *client, NSArray *messageParts, NSString *pushText)
+{
+    NSDictionary *pushOptions = @{LYRMessageOptionsPushNotificationAlertKey : pushText,
+                                  LYRMessageOptionsPushNotificationSoundNameKey : ATLPushNotificationSoundName};
+    NSError *error;
+    LYRMessage *message = [client newMessageWithParts:messageParts options:pushOptions error:&error];
+    if (error) {
+        return nil;
+    }
+    return message;
+}
+
 #pragma mark - Private Message Part Helpers
 
 CGSize  ATLSizeFromOriginalSizeWithConstraint(CGSize originalSize, CGFloat constraint)

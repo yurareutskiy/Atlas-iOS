@@ -26,6 +26,7 @@
 
 
 @class ATLConversationViewController;
+
 @protocol ATLMessagePresenting;
 
 ///---------------------------------------

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="AgC-eL-Hgc">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="7701"/>
+    </dependencies>
+    <scenes>
+        <!--Base Interface Controller-->
+        <scene sceneID="aou-V4-d1y">
+            <objects>
+                <controller id="AgC-eL-Hgc" customClass="LYRMBaseInterfaceController"/>
+            </objects>
+            <point key="canvasLocation" x="235" y="347"/>
+        </scene>
+        <!--conversationListController-->
+        <scene sceneID="PJj-Nr-YGj">
+            <objects>
+                <controller identifier="conversationListController" id="YUk-9d-wSP" customClass="ATLConversationListInterfaceController">
+                    <items>
+                        <table alignment="left" id="iOl-3l-0Bg">
+                            <items>
+                                <tableRow identifier="conversationRow" id="Qdv-8z-qaY" customClass="ATLConversationRow">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" layout="vertical" id="0Wj-cx-yge">
+                                        <items>
+                                            <label alignment="left" text="Label" id="I8i-9A-5cs">
+                                                <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
+                                            </label>
+                                            <label alignment="left" text="Label" numberOfLines="2" id="K57-Fq-uFF"/>
+                                            <label alignment="left" text="Label" id="mYj-XR-dpv">
+                                                <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
+                                            </label>
+                                        </items>
+                                        <edgeInsets key="margins" left="6" right="6" top="6" bottom="6"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="dateLabel" destination="mYj-XR-dpv" id="M6h-NB-VHE"/>
+                                        <outlet property="lastMessageLabel" destination="K57-Fq-uFF" id="ZET-hZ-hps"/>
+                                        <outlet property="titleLabel" destination="I8i-9A-5cs" id="E8E-oj-dXS"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                    </items>
+                    <connections>
+                        <outlet property="conversationTable" destination="iOl-3l-0Bg" id="JbS-rk-wjd"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="542" y="348"/>
+        </scene>
+        <!--conversationController-->
+        <scene sceneID="cDe-Yh-w0w">
+            <objects>
+                <controller identifier="conversationController" id="WF1-hY-Wby" customClass="ATLConversationInterfaceController">
+                    <items>
+                        <table alignment="left" id="x1w-tH-K7g">
+                            <items>
+                                <tableRow identifier="headerRow" id="aNe-TE-Hev" customClass="ATLHeaderRow">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" layout="vertical" spacing="0.0" id="vLO-Sj-t22">
+                                        <items>
+                                            <group height="28" alignment="center" layout="vertical" radius="12" id="ztv-Wn-G4G">
+                                                <items>
+                                                    <label alignment="left" text="Label" textAlignment="center" numberOfLines="10" id="feg-zn-KTq">
+                                                        <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
+                                                    </label>
+                                                </items>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                <edgeInsets key="margins" left="6" right="6" top="6" bottom="6"/>
+                                            </group>
+                                            <group alignment="left" layout="vertical" radius="12" id="M8X-hX-rxs">
+                                                <items>
+                                                    <label alignment="left" text="Label" textAlignment="center" numberOfLines="10" id="S2R-zs-abH">
+                                                        <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
+                                                    </label>
+                                                </items>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                <edgeInsets key="margins" left="6" right="6" top="6" bottom="6"/>
+                                            </group>
+                                        </items>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="dateGroup" destination="ztv-Wn-G4G" id="sAX-0u-bEW"/>
+                                        <outlet property="dateLabel" destination="feg-zn-KTq" id="O52-tR-7il"/>
+                                        <outlet property="senderGroup" destination="M8X-hX-rxs" id="Gtj-GN-Y4s"/>
+                                        <outlet property="senderLabel" destination="S2R-zs-abH" id="ZDF-Zl-6Gr"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="footerRow" id="9nd-3P-gZG" customClass="ATLFooterRow">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" layout="vertical" spacing="0.0" id="oH2-fa-L4C">
+                                        <items>
+                                            <group alignment="right" layout="vertical" radius="12" id="ZOQ-0b-kle">
+                                                <items>
+                                                    <label alignment="left" text="Label" textAlignment="left" numberOfLines="10" id="6nD-08-Dfp">
+                                                        <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
+                                                    </label>
+                                                </items>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                <edgeInsets key="margins" left="6" right="6" top="6" bottom="6"/>
+                                            </group>
+                                        </items>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="recipientStatusGroup" destination="ZOQ-0b-kle" id="uxs-Lx-cp4"/>
+                                        <outlet property="recipientStatusLabel" destination="6nD-08-Dfp" id="17g-X3-G58"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="outgoingRow" id="pTP-rD-vqN" customClass="ATLOutgoingRow">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" layout="vertical" spacing="0.0" id="yPf-hb-knv">
+                                        <items>
+                                            <group alignment="right" layout="vertical" radius="12" id="Ckg-ji-eAD">
+                                                <items>
+                                                    <label alignment="left" text="Label" textAlignment="left" numberOfLines="10" id="OY0-pO-6V2">
+                                                        <fontDescription key="font" style="UICTFontTextStyleBody"/>
+                                                    </label>
+                                                </items>
+                                                <color key="backgroundColor" red="1" green="0.43902881469999999" blue="0.43227502559999997" alpha="1" colorSpace="calibratedRGB"/>
+                                                <edgeInsets key="margins" left="6" right="6" top="6" bottom="6"/>
+                                            </group>
+                                            <group alignment="right" layout="vertical" radius="12" id="Kmu-2Q-vyd">
+                                                <items>
+                                                    <imageView alignment="left" id="8Km-Q8-K7a"/>
+                                                </items>
+                                                <color key="backgroundColor" red="1" green="0.43902881469999999" blue="0.43227502559999997" alpha="1" colorSpace="calibratedRGB"/>
+                                                <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
+                                            </group>
+                                            <group alignment="right" layout="vertical" radius="12" id="GXd-j2-cAq">
+                                                <items>
+                                                    <map height="100" alignment="left" id="o53-7q-Ydl"/>
+                                                </items>
+                                                <color key="backgroundColor" red="1" green="0.43902881469999999" blue="0.43227502559999997" alpha="1" colorSpace="calibratedRGB"/>
+                                                <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
+                                            </group>
+                                        </items>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="image" destination="8Km-Q8-K7a" id="U3m-zk-wJM"/>
+                                        <outlet property="imageGroup" destination="Kmu-2Q-vyd" id="ACy-T5-CFv"/>
+                                        <outlet property="label" destination="OY0-pO-6V2" id="WkY-EG-adm"/>
+                                        <outlet property="labelGroup" destination="Ckg-ji-eAD" id="Tnt-I2-ByM"/>
+                                        <outlet property="map" destination="o53-7q-Ydl" id="gun-wg-DEI"/>
+                                        <outlet property="mapGroup" destination="GXd-j2-cAq" id="HfJ-ow-1j4"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="incomingRow" id="mpQ-C1-Iwq" customClass="ATLIncomingRow">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" layout="vertical" spacing="0.0" id="8M5-hs-XLi">
+                                        <items>
+                                            <group alignment="left" layout="vertical" radius="6" id="gns-Eh-dTd">
+                                                <items>
+                                                    <label alignment="left" text="Label" numberOfLines="10" id="cCQ-5w-FRG"/>
+                                                </items>
+                                                <color key="backgroundColor" red="0.50477388489999997" green="0.79361123440000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                <edgeInsets key="margins" left="6" right="4" top="6" bottom="6"/>
+                                            </group>
+                                            <group alignment="left" layout="vertical" radius="12" id="Hcv-5j-zmn">
+                                                <items>
+                                                    <imageView width="80" alignment="left" id="Aq3-WM-FwR"/>
+                                                </items>
+                                                <color key="backgroundColor" red="0.50477388489999997" green="0.79361123440000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
+                                            </group>
+                                            <group alignment="left" layout="vertical" radius="12" id="WHl-W7-8WM">
+                                                <items>
+                                                    <map height="100" alignment="left" id="Dvh-Dc-boH"/>
+                                                </items>
+                                                <color key="backgroundColor" red="0.50477388489999997" green="0.79361123440000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
+                                            </group>
+                                        </items>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="image" destination="Aq3-WM-FwR" id="Dar-qV-iK9"/>
+                                        <outlet property="imageGroup" destination="Hcv-5j-zmn" id="Hdm-PP-dtB"/>
+                                        <outlet property="label" destination="cCQ-5w-FRG" id="iZN-zN-Dr7"/>
+                                        <outlet property="labelGroup" destination="gns-Eh-dTd" id="1HK-Qk-JiR"/>
+                                        <outlet property="map" destination="Dvh-Dc-boH" id="HOz-cy-uVR"/>
+                                        <outlet property="mapGroup" destination="WHl-W7-8WM" id="Y6i-MZ-GP3"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                    </items>
+                    <connections>
+                        <outlet property="messageTable" destination="x1w-tH-K7g" id="Joa-wU-bg6"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="847" y="347.5"/>
+        </scene>
+        <!--Glance Interface Controller-->
+        <scene sceneID="BOz-TT-tkC">
+            <objects>
+                <glanceController spacing="0.0" id="0uZ-2p-rRc" customClass="GlanceController">
+                    <items>
+                        <group alignment="left" id="t8f-Gd-c4y"/>
+                        <group alignment="left" id="uCw-4Q-Ouw"/>
+                    </items>
+                    <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="14"/>
+                </glanceController>
+            </objects>
+            <point key="canvasLocation" x="235" y="672"/>
+        </scene>
+        <!--Static Notification Interface Controller-->
+        <scene sceneID="AEw-b0-oYE">
+            <objects>
+                <notificationController id="YCC-NB-fut">
+                    <items>
+                        <label alignment="left" text="Alert Label" id="XkS-y5-khE"/>
+                    </items>
+                    <notificationCategory key="notificationCategory" identifier="myCategory" id="JfB-70-Muf"/>
+                    <connections>
+                        <outlet property="notificationAlertLabel" destination="XkS-y5-khE" id="49B-RR-99y"/>
+                        <segue destination="gdX-wl-uQE" kind="relationship" relationship="dynamicNotificationInterface" id="fKh-qV-3T2"/>
+                    </connections>
+                </notificationController>
+            </objects>
+            <point key="canvasLocation" x="235" y="1001"/>
+        </scene>
+        <!--Notification Controller-->
+        <scene sceneID="KIl-fV-djm">
+            <objects>
+                <controller id="gdX-wl-uQE" customClass="NotificationController"/>
+            </objects>
+            <point key="canvasLocation" x="553" y="1001"/>
+        </scene>
+    </scenes>
+</document>
