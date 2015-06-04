@@ -32,7 +32,7 @@
 
 @interface ATLConversationViewController () <UICollectionViewDataSource, UICollectionViewDelegate, ATLMessageInputToolbarDelegate, UIActionSheetDelegate, LYRQueryControllerDelegate, CLLocationManagerDelegate>
 
-@property (nonatomic) ATLConversationDataSource *conversationQueryController;
+@property (nonatomic) ATLConversationDataSource *conversationDataSource;
 @property (nonatomic) BOOL shouldDisplayAvatarItem;
 @property (nonatomic) NSMutableOrderedSet *typingParticipantIDs;
 @property (nonatomic) NSMutableArray *objectChanges;
@@ -118,7 +118,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    if (!self.conversationQueryController) {
+    if (!self.conversationDataSource) {
         [self fetchLayerMessages];
     }
     [self configureControllerForConversation];
@@ -179,7 +179,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
     if (conversation) {
         [self fetchLayerMessages];
     } else {
-        self.conversationQueryController = nil;
+        self.conversationDataSource = nil;
         [self.collectionView reloadData];
     }
     CGSize contentSize = self.collectionView.collectionViewLayout.collectionViewContentSize;
@@ -198,11 +198,15 @@ static NSInteger const ATLMoreMessagesSection = 0;
         }
     }
     
-    self.conversationQueryController = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient query:query];
-    self.conversationQueryController.queryController.delegate = self;
-    self.conversationQueryController.numberOfSectionsBeforeFirstMessage = 1;
-    self.conversationQueryController.dateDisplayTimeInterval = self.dateDisplayTimeInterval;
-    self.showingMoreMessagesIndicator = [self.conversationQueryController moreMessagesAvailable];
+    self.conversationDataSource = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient query:query];
+    self.conversationDataSource.queryController.delegate = self;
+    self.conversationDataSource.dateDisplayTimeInterval = self.dateDisplayTimeInterval;
+    
+    NSError *error;
+    if (![self.conversationDataSource executeWithError:&error]) {
+        NSLog(@"Failed fetching messages with error %@", error);
+    }
+    self.showingMoreMessagesIndicator = [self.conversationDataSource moreMessagesAvailable];
     [self.collectionView reloadData];
 }
 
@@ -256,7 +260,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
  */
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return [self.conversationQueryController.queryController numberOfObjectsInSection:0] + self.conversationQueryController.numberOfSectionsBeforeFirstMessage;
+    return [self.conversationDataSource.queryController numberOfObjectsInSection:0] + self.conversationDataSource.numberOfSectionsBeforeFirstMessage;
 }
 
 /**
@@ -264,7 +268,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
  */
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
+    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
     NSString *reuseIdentifier = [self reuseIdentifierForMessage:message atIndexPath:indexPath];
     
     UICollectionViewCell<ATLMessagePresenting> *cell =  [self.collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
@@ -276,7 +280,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self notifyDelegateOfMessageSelection:[self.conversationQueryController messageAtCollectionViewIndexPath:indexPath]];
+    [self notifyDelegateOfMessageSelection:[self.conversationDataSource messageAtCollectionViewIndexPath:indexPath]];
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
@@ -312,11 +316,11 @@ static NSInteger const ATLMoreMessagesSection = 0;
     }
     NSAttributedString *dateString;
     NSString *participantName;
-    if ([self.conversationQueryController shouldDisplayDateLabelForSection:section]) {
-        dateString = [self attributedStringForMessageDate:[self.conversationQueryController messageAtCollectionViewSection:section]];
+    if ([self.conversationDataSource shouldDisplayDateLabelForSection:section]) {
+        dateString = [self attributedStringForMessageDate:[self.conversationDataSource messageAtCollectionViewSection:section]];
     }
-    if ([self.conversationQueryController shouldDisplaySenderLabelForSection:section]) {
-        participantName = [self participantNameForMessage:[self.conversationQueryController messageAtCollectionViewSection:section]];
+    if ([self.conversationDataSource shouldDisplaySenderLabelForSection:section]) {
+        participantName = [self participantNameForMessage:[self.conversationDataSource messageAtCollectionViewSection:section]];
     }
     CGFloat height = [ATLConversationCollectionViewHeader headerHeightWithDateString:dateString participantName:participantName inView:self.collectionView];
     return CGSizeMake(0, height);
@@ -326,10 +330,10 @@ static NSInteger const ATLMoreMessagesSection = 0;
 {
     if (section == ATLMoreMessagesSection) return CGSizeZero;
     NSAttributedString *readReceipt;
-    if ([self.conversationQueryController shouldDisplayReadReceiptForSection:section]) {
-        readReceipt = [self attributedStringForRecipientStatusOfMessage:[self.conversationQueryController messageAtCollectionViewSection:section]];
+    if ([self.conversationDataSource shouldDisplayReadReceiptForSection:section]) {
+        readReceipt = [self attributedStringForRecipientStatusOfMessage:[self.conversationDataSource messageAtCollectionViewSection:section]];
     }
-    BOOL shouldClusterMessage = [self.conversationQueryController shouldClusterMessageAtSection:section];
+    BOOL shouldClusterMessage = [self.conversationDataSource shouldClusterMessageAtSection:section];
     CGFloat height = [ATLConversationCollectionViewFooter footerHeightWithRecipientStatus:readReceipt clustered:shouldClusterMessage];
     return CGSizeMake(0, height);
 }
@@ -368,7 +372,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
     [cell presentMessage:message];
     [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItem];
     
-    if ([self.conversationQueryController shouldDisplayAvatarItemAtIndexPath:indexPath] && self.shouldDisplayAvatarItem) {
+    if ([self.conversationDataSource shouldDisplayAvatarItemAtIndexPath:indexPath] && self.shouldDisplayAvatarItem) {
         [cell updateWithSender:[self participantForIdentifier:message.sender.userID]];
     } else {
         [cell updateWithSender:nil];
@@ -382,9 +386,9 @@ static NSInteger const ATLMoreMessagesSection = 0;
 
 - (void)configureFooter:(ATLConversationCollectionViewFooter *)footer atIndexPath:(NSIndexPath *)indexPath
 {
-    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
+    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
     footer.message = message;
-    if ([self.conversationQueryController shouldDisplayReadReceiptForSection:indexPath.section]) {
+    if ([self.conversationDataSource shouldDisplayReadReceiptForSection:indexPath.section]) {
         [footer updateWithAttributedStringForRecipientStatus:[self attributedStringForRecipientStatusOfMessage:message]];
     } else {
         [footer updateWithAttributedStringForRecipientStatus:nil];
@@ -393,12 +397,12 @@ static NSInteger const ATLMoreMessagesSection = 0;
 
 - (void)configureHeader:(ATLConversationCollectionViewHeader *)header atIndexPath:(NSIndexPath *)indexPath
 {
-    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
+    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
     header.message = message;
-    if ([self.conversationQueryController shouldDisplayDateLabelForSection:indexPath.section]) {
+    if ([self.conversationDataSource shouldDisplayDateLabelForSection:indexPath.section]) {
         [header updateWithAttributedStringForDate:[self attributedStringForMessageDate:message]];
     }
-    if ([self.conversationQueryController shouldDisplaySenderLabelForSection:indexPath.section]) {
+    if ([self.conversationDataSource shouldDisplaySenderLabelForSection:indexPath.section]) {
         [header updateWithParticipantName:[self participantNameForMessage:message]];
     }
 }
@@ -407,7 +411,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
 
 - (CGFloat)defaultCellHeightForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
+    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
     if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
         return [ATLOutgoingMessageCollectionViewCell cellHeightForMessage:message inView:self.view];
     } else {
@@ -729,14 +733,14 @@ static NSInteger const ATLMoreMessagesSection = 0;
     BOOL nearTop = distanceFromTop <= minimumDistanceFromTopToTriggerLoadingMore;
     if (!nearTop) return;
 
-    [self.conversationQueryController expandPaginationWindow];
+    [self.conversationDataSource expandPaginationWindow];
 }
 
 - (void)configureMoreMessagesIndicatorVisibility
 {
     if (self.collectionView.isDragging) return;
     if (self.collectionView.isDecelerating) return;
-    BOOL moreMessagesAvailable = [self.conversationQueryController moreMessagesAvailable];
+    BOOL moreMessagesAvailable = [self.conversationDataSource moreMessagesAvailable];
     if (moreMessagesAvailable == self.showingMoreMessagesIndicator) return;
     self.showingMoreMessagesIndicator = moreMessagesAvailable;
     [self reloadCollectionViewAdjustingForContentHeightChange];
@@ -811,9 +815,9 @@ static NSInteger const ATLMoreMessagesSection = 0;
 - (void)reloadCellForMessage:(LYRMessage *)message
 {
     dispatch_async(self.animationQueue, ^{
-        NSIndexPath *indexPath = [self.conversationQueryController.queryController indexPathForObject:message];
+        NSIndexPath *indexPath = [self.conversationDataSource.queryController indexPathForObject:message];
         if (indexPath) {
-            NSIndexPath *collectionViewIndexPath = [self.conversationQueryController collectionViewIndexPathForQueryControllerIndexPath:indexPath];
+            NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:indexPath];
             if (collectionViewIndexPath) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.collectionView reloadItemsAtIndexPaths:@[ collectionViewIndexPath ]];
@@ -827,7 +831,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
 {
     dispatch_async(self.animationQueue, ^{
         // Query for the All the Messages in the set of identifiers we have where sent by user == participantIdentifier
-        LYRQuery *messageIdentifiersQuery = [self.conversationQueryController.queryController.query copy];
+        LYRQuery *messageIdentifiersQuery = [self.conversationDataSource.queryController.query copy];
         messageIdentifiersQuery.resultType = LYRQueryResultTypeIdentifiers;
         NSError *error = nil;
         NSOrderedSet *messageIdentifiers = [self.layerClient executeQuery:messageIdentifiersQuery error:&error];
@@ -847,7 +851,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
             return;
         }
         
-        NSDictionary *objectIdentifiersToIndexPaths = [self.conversationQueryController.queryController indexPathsForObjectsWithIdentifiers:messageIdentifiersToReload.set];
+        NSDictionary *objectIdentifiersToIndexPaths = [self.conversationDataSource.queryController indexPathsForObjectsWithIdentifiers:messageIdentifiersToReload.set];
         NSArray *indexPaths = [objectIdentifiersToIndexPaths allValues];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.collectionView reloadItemsAtIndexPaths:indexPaths];
@@ -883,7 +887,7 @@ static NSInteger const ATLMoreMessagesSection = 0;
     CGFloat width = self.collectionView.bounds.size.width;
     CGFloat height = 0;
     if ([self.delegate respondsToSelector:@selector(conversationViewController:heightForMessage:withCellWidth:)]) {
-        LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
+        LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
         height = [self.delegate conversationViewController:self heightForMessage:message withCellWidth:width];
     }
     if (!height) {
@@ -984,16 +988,16 @@ static NSInteger const ATLMoreMessagesSection = 0;
           forChangeType:(LYRQueryControllerChangeType)type
            newIndexPath:(NSIndexPath *)newIndexPath
 {
-    if (self.conversationQueryController.isExpandingPaginationWindow) return;
-    NSInteger currentIndex = indexPath ? [self.conversationQueryController collectionViewSectionForQueryControllerRow:indexPath.row] : NSNotFound;
-    NSInteger newIndex = newIndexPath ? [self.conversationQueryController collectionViewSectionForQueryControllerRow:newIndexPath.row] : NSNotFound;
+    if (self.conversationDataSource.isExpandingPaginationWindow) return;
+    NSInteger currentIndex = indexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:indexPath.row] : NSNotFound;
+    NSInteger newIndex = newIndexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:newIndexPath.row] : NSNotFound;
     [self.objectChanges addObject:[ATLDataSourceChange changeObjectWithType:type newIndex:newIndex currentIndex:currentIndex]];
 }
 
 - (void)queryControllerDidChangeContent:(LYRQueryController *)queryController
 {
-    if (self.conversationQueryController.isExpandingPaginationWindow) {
-        self.showingMoreMessagesIndicator = [self.conversationQueryController moreMessagesAvailable];
+    if (self.conversationDataSource.isExpandingPaginationWindow) {
+        self.showingMoreMessagesIndicator = [self.conversationDataSource moreMessagesAvailable];
         [self reloadCollectionViewAdjustingForContentHeightChange];
         return;
     }
@@ -1052,21 +1056,21 @@ static NSInteger const ATLMoreMessagesSection = 0;
     // Since each section's content depends on other messages, we need to update each visible section even when a section's corresponding message has not changed. This also solves the issue with LYRQueryControllerChangeTypeUpdate (see above).
     for (UICollectionViewCell<ATLMessagePresenting> *cell in [self.collectionView visibleCells]) {
         NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
-        LYRMessage *message = [self.conversationQueryController messageAtCollectionViewIndexPath:indexPath];
+        LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
         [self configureCell:cell forMessage:message indexPath:indexPath];
     }
     
     for (ATLConversationCollectionViewHeader *header in self.sectionHeaders) {
-        NSIndexPath *queryControllerIndexPath = [self.conversationQueryController.queryController indexPathForObject:header.message];
+        NSIndexPath *queryControllerIndexPath = [self.conversationDataSource.queryController indexPathForObject:header.message];
         if (!queryControllerIndexPath) continue;
-        NSIndexPath *collectionViewIndexPath = [self.conversationQueryController collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
+        NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
         [self configureHeader:header atIndexPath:collectionViewIndexPath];
     }
     
     for (ATLConversationCollectionViewFooter *footer in self.sectionFooters) {
-        NSIndexPath *queryControllerIndexPath = [self.conversationQueryController.queryController indexPathForObject:footer.message];
+        NSIndexPath *queryControllerIndexPath = [self.conversationDataSource.queryController indexPathForObject:footer.message];
         if (!queryControllerIndexPath) continue;
-        NSIndexPath *collectionViewIndexPath = [self.conversationQueryController collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
+        NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
         [self configureFooter:footer atIndexPath:collectionViewIndexPath];
     }
 }

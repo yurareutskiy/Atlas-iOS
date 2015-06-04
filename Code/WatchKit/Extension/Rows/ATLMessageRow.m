@@ -8,6 +8,9 @@
 
 #import "ATLMessageRow.h"
 #import "ATLMessagingUtilities.h"
+#import "ATLIncomingRow.h"
+#import "ATLOutgoingRow.h"
+#import "ATLConstants.h"
 
 @interface ATLMessageRow ()
 
@@ -19,6 +22,8 @@
 
 - (void)updateWithMessage:(LYRMessage *)message
 {
+    [self configureRowColor];
+    
     self.message = message;
     
     LYRMessagePart *messagePart = message.parts[0];
@@ -32,6 +37,15 @@
         [self configureBubbleViewForGIFContent];
     } else if ([messagePart.MIMEType isEqualToString:ATLMIMETypeLocation]) {
         [self configureBubbleViewForLocationContent];
+    }
+}
+
+- (void)configureRowColor
+{
+    if ([self isKindOfClass:[ATLIncomingRow class]]) {
+        [self.labelGroup setBackgroundColor:ATLBlueColor()];
+    } else {
+        [self.labelGroup setBackgroundColor:ATLLightGrayColor()];
     }
 }
 

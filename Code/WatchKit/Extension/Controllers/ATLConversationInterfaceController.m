@@ -22,8 +22,7 @@
 
 @interface ATLConversationInterfaceController () <LYRProgressDelegate, LYRQueryControllerDelegate>
 
-@property (nonatomic) ATLConversationDataSource *conversationQueryController;
-@property (nonatomic) NSMutableArray *insertedIndexes;
+@property (nonatomic) ATLConversationDataSource *conversationDataSource;
 
 @end
 
@@ -33,9 +32,9 @@
 {
     [super awakeWithContext:context];
     
-    self.insertedIndexes = [NSMutableArray new];
     self.layerClient = [context objectForKey:ATLLayerClientKey];
     self.conversation = [context objectForKey:ATLLayerConversationKey];
+    self.conversationDataSource = [self dataSourceForConversation];
 }
 
 - (void)willActivate
@@ -45,23 +44,44 @@
     [self.messageTable scrollToRowAtIndex:lastIndex];
 }
 
-- (void)configureConversationViewController
+- (void)didDeactivate
+{
+    [super didDeactivate];
+    self.conversationDataSource = nil;
+    self.layerClient = nil;
+    self.conversation = nil;
+}
+
+- (ATLConversationDataSource *)dataSourceForConversation
 {
     LYRQuery *query = ATLMessageListDefaultQueryForConversation(self.conversation);
-    self.conversationQueryController = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient query:query];
-    self.conversationQueryController.dateDisplayTimeInterval = 60*60;
-    self.conversationQueryController.queryController.delegate = self;
+    ATLConversationDataSource *conversationDatasource = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient query:query];
+    conversationDatasource.paginationIncrement = 10;
+    conversationDatasource .queryController.delegate = self;
+    conversationDatasource.numberOfSectionsBeforeFirstMessage = 0;
     
-    NSUInteger messageCount = [self.conversationQueryController.queryController numberOfObjectsInSection:0];
+    NSError *error;
+    if (![conversationDatasource executeWithError:&error] ){
+        NSLog(@"Failed fetching messages with error %@", error);
+    }
+    return conversationDatasource ;
+}
+
+- (void)configureConversationViewController
+{
+    NSUInteger messageCount = [self.conversationDataSource.queryController numberOfObjectsInSection:0];
     [self calculateRowsForMessageCount:messageCount];
-    [self configureRowContent];
+    NSUInteger rowCount = self.messageTable.numberOfRows;
+    for (NSUInteger i = 0; i < rowCount; i++) {
+        [self configureRowAtIndex:i];
+    }
 }
 
 - (void)calculateRowsForMessageCount:(NSUInteger)messageCount
 {
     NSMutableArray *rows = [[NSMutableArray alloc] initWithCapacity:messageCount];
     for (NSUInteger i = 0; i < messageCount; i++) {
-        LYRMessage *message = [self.conversationQueryController messageAtCollectionViewSection:i];
+        LYRMessage *message = [self.conversationDataSource messageAtCollectionViewSection:i];
         if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
             [rows addObject:@"outgoingRow"];
         } else {
@@ -71,35 +91,27 @@
     [self.messageTable setRowTypes:rows];
 }
 
-- (void)configureRowContent
-{
-    NSUInteger rowCount = self.messageTable.numberOfRows;
-    for (NSUInteger i = 0; i < rowCount; i++) {
-        [self configureRowAtIndex:i];
-    }
-}
-
 - (void)configureRowAtIndex:(NSUInteger)index
 {
-    LYRMessage *message = [self.conversationQueryController messageAtCollectionViewSection:index];
+    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewSection:index];
     ATLMessageRow *row = [self.messageTable rowControllerAtIndex:index];
     [row updateWithMessage:message];
     
-    if ([self.conversationQueryController shouldDisplayDateLabelForSection:index]) {
+    if ([self.conversationDataSource shouldDisplayDateLabelForSection:index]) {
         NSAttributedString *dateString =  [self attributedStringForMessageDate:message];
         [row.dateLabel setAttributedText:dateString];
     } else {
         [row.dateLabelGroup setHidden:YES];
     }
     
-    if ([self.conversationQueryController shouldDisplaySenderLabelForSection:index]) {
+    if ([self.conversationDataSource shouldDisplaySenderLabelForSection:index]) {
         id<ATLParticipant> sender = [self participantForIdentifier:message.sender.userID];
         [row.senderNameLabel setText:sender.fullName];
     } else {
         [row.senderNameGroup setHidden:YES];
     }
     
-    if ([self.conversationQueryController shouldDisplayReadReceiptForSection:index]) {
+    if ([self.conversationDataSource shouldDisplayReadReceiptForSection:index]) {
         NSAttributedString *recipientStatusString = [self attributedStringForRecipientStatusOfMessage:message];
         [row.recipientStatusLabel setAttributedText:recipientStatusString];
     } else {
@@ -113,10 +125,12 @@
 {
     [self presentTextInputControllerWithSuggestions:@[@"Taste", @"Taste Test", @"Taste Case",@"A Taste for you", @"Gift", @"Pac o'clock", @"Ride or Die", @"Go Seahawks", @"UCLA > USC", @"Expo Growth > Log Growth"] allowedInputMode:WKTextInputModeAllowAnimatedEmoji completion:^(NSArray *results) {
         NSString *messageText = results[0];
-        ATLMediaAttachment *mediaAttachment = [ATLMediaAttachment mediaAttachmentWithText:messageText];
-        NSOrderedSet *messages = [self messagesForMediaAttachments:@[mediaAttachment]];
-        for (LYRMessage *message in messages) {
-            [self sendMessage:message];
+        if (messageText) {
+            ATLMediaAttachment *mediaAttachment = [ATLMediaAttachment mediaAttachmentWithText:messageText];
+            NSOrderedSet *messages = [self messagesForMediaAttachments:@[mediaAttachment]];
+            for (LYRMessage *message in messages) {
+                [self sendMessage:message];
+            }
         }
     }];
 }
@@ -127,7 +141,9 @@
     if ([self.delegate respondsToSelector:@selector(conversationInterfaceController:messagesForMediaAttachments:)]) {
         messages = [self.delegate conversationInterfaceController:self messagesForMediaAttachments:mediaAttachments];
         // If delegate returns an empty set, don't send any messages.
-        if (messages && !messages.count) return nil;
+        if (messages && !messages.count) {
+            return nil;
+        }
     }
     // If delegate returns nil, we fall back to default behavior.
     if (!messages) {
@@ -235,25 +251,17 @@
 
 - (void)queryController:(LYRQueryController *)controller didChangeObject:(id)object atIndexPath:(NSIndexPath *)indexPath forChangeType:(LYRQueryControllerChangeType)type newIndexPath:(NSIndexPath *)newIndexPath
 {
-    NSMutableArray *updatedIndexes = [NSMutableArray new];
     switch (type) {
         case LYRQueryControllerChangeTypeInsert:
-            if ([object isKindOfClass:[LYRMessage class]]) {
-                LYRMessage *message = object;
-                if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
-                    [self.messageTable insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:newIndexPath.row] withRowType:@"outgoingRow"];
-                } else {
-                    [self.messageTable insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:newIndexPath.row] withRowType:@"incomingRow"];
-                }
-                [self configureRowAtIndex:newIndexPath.row - 1];
-                [self configureRowAtIndex:newIndexPath.row];
-            }
+            [self insertMessage:object atIndex:newIndexPath.row];
             break;
         case LYRQueryControllerChangeTypeUpdate:
-            [updatedIndexes addObject:indexPath];
+            [self configureRowAtIndex:indexPath.row];
             break;
         case LYRQueryControllerChangeTypeMove:
-            
+            [self.messageTable removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:indexPath.row]];
+            [self.messageTable insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:newIndexPath.row] withRowType:@"conversationRow"];
+            [self configureRowAtIndex:newIndexPath.row];
             break;
         case LYRQueryControllerChangeTypeDelete:
             [self.messageTable removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:indexPath.row]];
@@ -267,6 +275,21 @@
 {
     NSUInteger lastIndex = [self.messageTable numberOfRows] - 1;
     [self.messageTable scrollToRowAtIndex:lastIndex];
+}
+
+#pragma mark - Change Configuration
+
+- (void)insertMessage:(LYRMessage *)message atIndex:(NSUInteger)index
+{
+    if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
+        [self.messageTable insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:index] withRowType:@"outgoingRow"];
+    } else {
+        [self.messageTable insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:index] withRowType:@"incomingRow"];
+    }
+    [self configureRowAtIndex:index];
+    if (index > 0) {
+        [self configureRowAtIndex:index- 1];
+    }
 }
 
 @end

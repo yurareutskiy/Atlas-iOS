@@ -7,6 +7,7 @@
 //
 
 #import "ATLIncomingRow.h"
+#import "ATLConstants.h"
 
 @implementation ATLIncomingRow
 

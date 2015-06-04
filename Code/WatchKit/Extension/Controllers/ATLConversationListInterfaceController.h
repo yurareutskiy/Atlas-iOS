@@ -27,25 +27,6 @@
  */
 - (void)conversationListInterfaceController:(ATLConversationListInterfaceController *)conversationListInterfaceController didSelectConversation:(LYRConversation *)conversation;
 
-@optional
-
-/**
- @abstract Informs the delegate that an `LYRConversation` was deleted.
- @param conversationListInterfaceController The `LYRconversationListInterfaceController` in which the deletion occurred.
- @param conversation The `LYRConversation` object that was deleted.
- @param deletionMode The `LYRDeletionMode` with which the conversation was deleted.
- */
-- (void)conversationListInterfaceController:(ATLConversationListInterfaceController *)conversationListInterfaceController didDeleteConversation:(LYRConversation *)conversation deletionMode:(LYRDeletionMode)deletionMode;
-
-/**
- @abstract Informs the delegate that an attempt to delete an `LYRConversation` failed.
- @param conversationListInterfaceController The `LYRconversationListInterfaceController` in which the deletion attempt occurred.
- @param conversation The `LYRConversation` object that failed deletion.
- @param deletionMode The `LYRDeletionMode` with which the conversation delete attempt was made.
- @param error An `NSError` object describing the deletion failure.
- */
-- (void)conversationListInterfaceController:(ATLConversationListInterfaceController *)conversationListInterfaceController didFailDeletingConversation:(LYRConversation *)conversation deletionMode:(LYRDeletionMode)deletionMode error:(NSError *)error;
-
 @end
 
 ///---------------------------------------
@@ -72,32 +53,6 @@
  @discussion The data provided by the object conforming to the `ATLAvatarItem` protocol will be displayed in an `LYRAvatarImageView`.
  */
 - (id<ATLAvatarItem>)conversationListInterfaceController:(ATLConversationListInterfaceController *)conversationListInterfaceController avatarItemForConversation:(LYRConversation *)conversation;
-
-/**
- @abstract Asks the data source for the table view cell reuse identifier for a conversation.
- @param conversationListInterfaceController The `ATLConversationListInterfaceController` requesting the string.
- @return A string that will be used to dequeue a cell from the table view.
- @discussion Applications that wish to use prototype cells from a UIStoryboard in the ATLConversationListInterfaceController cannot register their cells programmatically.
- The cell must be given a reuse identifier in the UIStoryboard and that string needs to be passed into the ATLConversationListInterfaceController so it can properly dequeue a
- reuseable cell. If 'nil' is returned, the table view will default to internal values for reuse identifiers.
- */
-- (NSString *)reuseIdentifierForconversationListInterfaceController:(ATLConversationListInterfaceController *)conversationListInterfaceController;
-
-/**
- @abstract Asks the data source for a string to display on the delete button for a given deletion mode.
- @param conversationListInterfaceController The `LYRconversationListInterfaceController` in which the button title will appear.
- @param deletionMode The `LYRDeletionMode` for which a button has to be displayed.
- @return The string to be displayed on the delete button for a given deletion mode in the conversation list.
- */
-- (NSString *)conversationListInterfaceController:(ATLConversationListInterfaceController *)conversationListInterfaceController textForButtonWithDeletionMode:(LYRDeletionMode)deletionMode;
-
-/**
- @abstract Asks the data source for a color to apply to the delete button for a given deletion mode.
- @param conversationListInterfaceController The `LYRconversationListInterfaceController` in which the button title will appear.
- @param deletionMode The `LYRDeletionMode` for which a button has to be displayed.
- @return The color to apply on the delete button for a given deletion mode in the conversation list.
- */
-- (UIColor *)conversationListInterfaceController:(ATLConversationListInterfaceController *)conversationListInterfaceController colorForButtonWithDeletionMode:(LYRDeletionMode)deletionMode;
 
 /**
  @abstract Asks the data source for the string to display as the conversation's last sent message.
