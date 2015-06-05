@@ -52,7 +52,7 @@
 
 - (BOOL)executeWithError:(NSError **)error
 {
-    return [_queryController execute:error];
+    return [self.queryController execute:error];
 }
 
 - (void)setPaginationIncrement:(NSUInteger)paginationIncrement

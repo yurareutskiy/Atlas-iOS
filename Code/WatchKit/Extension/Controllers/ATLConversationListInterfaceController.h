@@ -56,6 +56,7 @@
 
 /**
  @abstract Asks the data source for the string to display as the conversation's last sent message.
+ @param conversationListInterfaceController The `LYRconversationListInterfaceController` in which the title string will appear.
  @params conversation The conversation for which the last message text should be returned.
  @return A string representing the content of the last message.  If `nil` is returned the controller will fall back to default behavior.
  @discussion This is used when the application uses custom `MIMEType`s and wants to customize how they are displayed.
@@ -83,14 +84,32 @@
 
 @interface ATLConversationListInterfaceController : WKInterfaceController
 
+/**
+ @abstract The `LYRClient` object used to query for messaging content to be displayed in the controller.
+ @discussion The `LYRClient` object must be passed into the `context` dictionary as a value for the `ATLLayerClientKey` key when presenting the controller.
+ */
 @property (nonatomic) LYRClient *layerClient;
 
-@property (nonatomic, weak) id<ATLConversationListInterfaceControllerDataSource>dataSource;
-
+/**
+ @abstract The `ATLConversationListInterfaceControllerDelegate` class informs the receiver to specific events that occurred within the controller.
+ */
 @property (nonatomic, weak) id<ATLConversationListInterfaceControllerDelegate>delegate;
 
+/**
+ @abstract The `ATLConversationListInterfaceControllerDataSource` class presents an interface allowing for the display of information pertaining to specific conversations in the controller
+ */
+@property (nonatomic, weak) id<ATLConversationListInterfaceControllerDataSource>dataSource;
+
+/**
+ @abstract The `WKInterfaceTable` in which conversations are displayed.
+ @discussion Applications can customize the table via the `Interface.storyboard` file.
+ */
 @property (strong, nonatomic) IBOutlet WKInterfaceTable *conversationTable;
 
+/**
+ @abstract Configures the receiver and its content for display.
+ @discussion Subclasses must call this method in `awakeWithContext:` after any aditional setup has been perfromed.
+ */
 - (void)configureConversationListController;
 
 @end

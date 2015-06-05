@@ -350,11 +350,10 @@ NSString *const ATLConversationTableViewAccessibilityIdentifier = @"Conversation
     }]];
     
     [controller addAction:[UIAlertAction actionWithTitle:@"Local" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-                [self deleteConversationAtIndexPath:indexPath withDeletionMode:LYRDeletionModeLocal];
+        [self deleteConversationAtIndexPath:indexPath withDeletionMode:LYRDeletionModeLocal];
     }]];
     
     [controller addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:nil]];
-    
     [self presentViewController:controller animated:YES completion:nil];
 }
 

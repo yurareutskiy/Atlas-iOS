@@ -62,7 +62,7 @@
 ///---------------------------------------
 
 /**
- @abstract The time interval used to determine whehter or not a date string should be displayed in a conversation view section.
+ @abstract The time interval that must elapse for a date to be displayed in the conversation UI.
  @discussion If the time elapsed between two messages is greater than the `dateDisplayTimeInterval`, a date will be displayed.
  @defualt `3600`
  */
@@ -84,7 +84,7 @@
 - (BOOL)shouldDisplayReadReceiptForSection:(NSUInteger)section;
 
 /**
- @abstract Determines whether or not messages should be clustered for a given section
+ @abstract Determines whether or not messages should be clustered for a given section.
  */
 - (BOOL)shouldClusterMessageAtSection:(NSUInteger)section;
 

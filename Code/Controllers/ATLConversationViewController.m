@@ -377,9 +377,11 @@ static NSInteger const ATLMoreMessagesSection = 0;
     } else {
         [cell updateWithSender:nil];
     }
-//    if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-//        [message markAsRead:nil];
-//    }
+    
+#warning TODO - Macro For Extension Compiler Error
+    if (message.isUnread && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+        [message markAsRead:nil];
+    }
 }
 
 - (void)configureFooter:(ATLConversationCollectionViewFooter *)footer atIndexPath:(NSIndexPath *)indexPath
@@ -623,10 +625,8 @@ static NSInteger const ATLMoreMessagesSection = 0;
     
     NSArray *changes = notification.userInfo[LYRClientObjectChangesUserInfoKey];
     for (LYRObjectChange *change in changes) {
-        
         id changedObject = change.object;
         if (![changedObject isEqual:self.conversation]) continue;
-        
         LYRObjectChangeType changeType = change.type;
         NSString *changedProperty = change.property;
         if (changeType == LYRObjectChangeTypeUpdate && [changedProperty isEqualToString:@"participants"]) {
@@ -898,10 +898,14 @@ static NSInteger const ATLMoreMessagesSection = 0;
     if ([self.delegate respondsToSelector:@selector(conversationViewController:messagesForMediaAttachments:)]) {
         messages = [self.delegate conversationViewController:self messagesForMediaAttachments:mediaAttachments];
         // If delegate returns an empty set, don't send any messages.
-        if (messages && !messages.count) return nil;
+        if (messages && !messages.count) {
+            return nil;
+        }
     }
     // If delegate returns nil, we fall back to default behavior.
-    if (!messages) messages = [self defaultMessagesForMediaAttachments:mediaAttachments];
+    if (!messages) {
+        messages = [self defaultMessagesForMediaAttachments:mediaAttachments];
+    }
     return messages;
 }
 

@@ -11,8 +11,19 @@
 
 @interface ATLConversationRow : NSObject
 
+/**
+ @abstract The title label for the conversation.
+ */
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *titleLabel;
+
+/**
+ @abstract The last message label for the conversation.
+ */
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *lastMessageLabel;
+
+/**
+ @abstractT The date label for the conversation.
+ */
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *dateLabel;
 
 @end

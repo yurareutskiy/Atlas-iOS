@@ -102,12 +102,6 @@
 @interface ATLConversationInterfaceController : WKInterfaceController
 
 /**
- @abstract The `WKInterfaceTable` in which messages are displayed.
- @discussion Applications can customize the table via the `Interface.storyboard` file.
- */
-@property (nonatomic) IBOutlet WKInterfaceTable *messageTable;
-
-/**
  @abstract The `ATLConversationInterfaceControllerDelegate` class informs the receiver to specific events that occurred within the controller.
  */
 @property (nonatomic, weak) id<ATLConversationInterfaceControllerDelegate>delegate;
@@ -128,6 +122,12 @@
  @discussion The `LYRConversation` object must be passed into the `context` dictionary as a value for the `ATLLayerConversationKey` key when presenting the controller.
  */
 @property (nonatomic, readonly) LYRConversation *conversation;
+
+/**
+ @abstract The `WKInterfaceTable` in which messages are displayed.
+ @discussion Applications can customize the table via the `Interface.storyboard` file.
+ */
+@property (nonatomic) IBOutlet WKInterfaceTable *messageTable;
 
 /**
  @abstract Configures the receiver and its content for display.
