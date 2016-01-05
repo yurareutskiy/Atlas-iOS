@@ -274,11 +274,12 @@ NSInteger const kATLSharedCellTag = 1000;
             size = ATLImageSizeForData(fullResImagePart.data);
         }
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // For GIFs we only download full resolution parts when rendered in the UI
-            // Low res GIFs are autodownloaded but blurry
-            if ([fullResImagePart.MIMEType isEqualToString:ATLMIMETypeImageGIF]) {
-                if (fullResImagePart.transferStatus == LYRContentTransferReadyForDownload) {
+        
+        // For GIFs we only download full resolution parts when rendered in the UI
+        // Low res GIFs are autodownloaded but blurry
+        if ([fullResImagePart.MIMEType isEqualToString:ATLMIMETypeImageGIF]) {
+            if (fullResImagePart.transferStatus == LYRContentTransferReadyForDownload) {
+                dispatch_async(dispatch_get_main_queue(), ^{
                     NSError *error;
                     LYRProgress *progress = [fullResImagePart downloadContent:&error];
                     if (!progress) {
@@ -286,26 +287,29 @@ NSInteger const kATLSharedCellTag = 1000;
                     }
                     [weakSelf.bubbleView updateProgressIndicatorWithProgress:0.0 visible:NO animated:NO];
                     [weakSelf.bubbleView updateWithImage:displayingImage width:size.width];
-                } else if (fullResImagePart.transferStatus == LYRContentTransferDownloading) {
+                });
+            } else if (fullResImagePart.transferStatus == LYRContentTransferDownloading) {
+                dispatch_async(dispatch_get_main_queue(), ^{
                     LYRProgress *progress = fullResImagePart.progress;
                     [progress setDelegate:weakSelf];
                     weakSelf.progress = progress;
                     [weakSelf.bubbleView updateProgressIndicatorWithProgress:progress.fractionCompleted visible:YES animated:NO];
                     [weakSelf.bubbleView updateWithImage:displayingImage width:size.width];
-                } else {
-                    dispatch_async(weakSelf.imageProcessingConcurrentQueue, ^{
-                        displayingImage = ATLAnimatedImageWithAnimatedGIFData(fullResImagePart.data);
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            if (weakSelf.message != previousMessage) {
-                                return;
-                            }
-                            [weakSelf.bubbleView updateProgressIndicatorWithProgress:1.0 visible:NO animated:YES];
-                            [weakSelf.bubbleView updateWithImage:displayingImage width:size.width];
-                        });
-                    });
-                }
+                });
+            } else {
+                displayingImage = ATLAnimatedImageWithAnimatedGIFData(fullResImagePart.data);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (weakSelf.message != previousMessage) {
+                        return;
+                    }
+                    if (!displayingImage){
+                        
+                    }
+                    [weakSelf.bubbleView updateProgressIndicatorWithProgress:1.0 visible:NO animated:YES];
+                    [weakSelf.bubbleView updateWithImage:displayingImage width:size.width];
+                });
             }
-        });
+        }
     });
 }
 

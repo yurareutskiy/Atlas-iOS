@@ -74,29 +74,24 @@ LYRMessagePartMock *ATLMessagePartWithLocation(CLLocation *location)
     self = [super init];
     if (self) {
         _layerClient = layerClient;
-        [[LYRMockContentStore sharedStore] setShouldBroadcastChanges:YES];
         
     }
     return self;
 }
 
-- (LYRConversationMock *)conversationWithParticipants:(NSSet *)participants lastMessageText:(NSString *)lastMessageText
+- (void)dealloc
 {
-    LYRConversationMock *conversation = [self.layerClient newConversationWithParticipants:participants options:nil error:nil];
-    if (lastMessageText) {
-        LYRMessagePart *part = [LYRMessagePart messagePartWithText:lastMessageText];
-        LYRMessageMock *message = [self.layerClient newMessageWithParts:@[part] options:nil error:nil];
-        [conversation sendMessage:message error:nil];
-    }
-    return conversation;
+    self.layerClient = nil;
+    self.layerClient.store = nil;
 }
 
-- (NSString *)conversationLabelForConversation:(LYRConversationMock *)conversation
+- (NSString *)conversationLabelForConversation:(LYRConversationMock *)conversation layerClient:(LYRClientMock *)client
 {
-    if (!self.layerClient.authenticatedUserID) return @"Not auth'd";
     NSMutableSet *participantIdentifiers = [conversation.participants mutableCopy];
-    [participantIdentifiers removeObject:self.layerClient.authenticatedUserID];
-    
+    if ([participantIdentifiers containsObject:client.authenticatedUserID]) {
+        [participantIdentifiers removeObject:client.authenticatedUserID];
+    }
+
     if (participantIdentifiers.count == 0) return @"Personal Conversation";
     
     NSMutableSet *participants = [[ATLUserMock participantsForIdentifiers:participantIdentifiers] mutableCopy];
@@ -111,7 +106,11 @@ LYRMessagePartMock *ATLMessagePartWithLocation(CLLocation *location)
             if (lastMessageSender) {
                 firstUser = lastMessageSender;
                 [participants removeObject:lastMessageSender];
+            } else {
+                firstUser = [[participants allObjects] objectAtIndex:0];
             }
+        } else {
+            firstUser = [[participants allObjects] objectAtIndex:0];
         }
     } else {
         firstUser = [[participants allObjects] objectAtIndex:0];
@@ -129,13 +128,17 @@ LYRMessagePartMock *ATLMessagePartWithLocation(CLLocation *location)
 {
     ProgrammaticAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:controller];
-    delegate.window.rootViewController = navigationController;
+    [delegate.window.rootViewController presentViewController:navigationController animated:NO completion:nil];
 }
 
 - (void)dismissPresentedViewController
 {
     ProgrammaticAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
-    delegate.window.rootViewController = nil;
+    __block LYRCountDownLatch *latch = [LYRCountDownLatch latchWithCount:1 timeoutInterval:10];
+    [delegate.window.rootViewController dismissViewControllerAnimated:NO completion:^{
+        [latch decrementCount];
+    }];
+    [latch waitTilCount:0];
 }
 
 @end

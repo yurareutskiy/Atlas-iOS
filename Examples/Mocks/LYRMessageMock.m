@@ -18,9 +18,9 @@
 //  limitations under the License.
 //
 #import "LYRMessageMock.h"
-#import "LYRMockContentStore.h"
 
 @implementation LYRActorMock
+
 @end
 
 @interface LYRMessageMock ()
@@ -30,46 +30,50 @@
 @property (nonatomic, readwrite) BOOL isDeleted;
 @property (nonatomic, readwrite) BOOL isUnread;
 @property (nonatomic, readwrite) LYRActorMock *sender;
+@property (nonatomic) LYRMockContentStore *store;
 
 @end
 
 @implementation LYRMessageMock
 
-- (id)initWithMessageParts:(NSArray *)messageParts senderID:(NSString *)senderID
+- (id)initWithMessageParts:(NSArray *)messageParts senderID:(NSString *)senderID store:(LYRMockContentStore *)store
 {
     self = [super init];
     if (self) {
         _parts = messageParts;
         _sender = [LYRActorMock new];
         _sender.userID = senderID;
+        _store = store;
     }
     return self;    
 }
 
-- (id)initWithMessageParts:(NSArray *)messageParts senderName:(NSString *)senderName
+- (id)initWithMessageParts:(NSArray *)messageParts senderName:(NSString *)senderName store:(LYRMockContentStore *)store;
 {
     self = [super init];
     if (self) {
         _parts = messageParts;
         _sender = [LYRActorMock new];
         _sender.name = senderName;
+        _store = store;
     }
     return self;
 }
 
-+ (instancetype)newMessageWithParts:(NSArray *)messageParts senderID:(NSString *)senderID
++ (instancetype)newMessageWithParts:(NSArray *)messageParts senderID:(NSString *)senderID store:(LYRMockContentStore *)store
 {
-    LYRMessageMock *mock = [[self alloc] initWithMessageParts:messageParts senderID:senderID];
+    LYRMessageMock *mock = [[self alloc] initWithMessageParts:messageParts senderID:senderID store:store];
     mock.identifier = [NSURL URLWithString:[[NSUUID UUID] UUIDString]];
     mock.isSent = NO;
     mock.isDeleted = NO;
     mock.isUnread = YES;
+    mock.store = store;
     return mock;
 }
 
-+ (instancetype)newMessageWithParts:(NSArray *)messageParts senderName:(NSString *)senderName
++ (instancetype)newMessageWithParts:(NSArray *)messageParts senderName:(NSString *)senderName store:(LYRMockContentStore *)store
 {
-    LYRMessageMock *mock = [[self alloc] initWithMessageParts:messageParts senderName:senderName];
+    LYRMessageMock *mock = [[self alloc] initWithMessageParts:messageParts senderName:senderName store:store];
     mock.identifier = [NSURL URLWithString:[[NSUUID UUID] UUIDString]];
     mock.isSent = NO;
     mock.isDeleted = NO;
@@ -86,8 +90,8 @@
 - (BOOL)delete:(LYRDeletionMode)deletionMode error:(NSError **)error
 {
     self.isDeleted = YES;
-    [[LYRMockContentStore sharedStore] deleteMessage:self];
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.store deleteMessage:self];
+    [self.store broadcastChanges];
     return YES;
 }
 

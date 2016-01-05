@@ -17,10 +17,13 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+
 #import <Foundation/Foundation.h>
 #import <Atlas/Atlas.h>
+#import "LYRMockContentStore.h"
 
 @class LYRConversationMock;
+@class LYRMockContentStore;
 
 @interface LYRActorMock : NSObject
 
@@ -28,6 +31,7 @@
 @property (nonatomic, readwrite) NSString *name;
 
 @end
+
 @interface LYRMessageMock : NSObject <LYRQueryable>
 
 @property (nonatomic, readonly) NSURL *identifier LYR_QUERYABLE_PROPERTY;
@@ -42,9 +46,9 @@
 @property (nonatomic, readonly) LYRActorMock *sender;
 @property (nonatomic) NSDictionary *recipientStatusByUserID;
 
-+ (instancetype)newMessageWithParts:(NSArray *)messageParts senderID:(NSString *)senderID;
++ (instancetype)newMessageWithParts:(NSArray *)messageParts senderID:(NSString *)senderID store:(LYRMockContentStore *)store;
 
-+ (instancetype)newMessageWithParts:(NSArray *)messageParts senderName:(NSString *)senderName;
++ (instancetype)newMessageWithParts:(NSArray *)messageParts senderName:(NSString *)senderName store:(LYRMockContentStore *)store;
 
 - (BOOL)markAsRead:(NSError **)error;
 

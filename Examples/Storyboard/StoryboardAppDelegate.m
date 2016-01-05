@@ -22,6 +22,11 @@
 #import "ATLSampleConversationListViewController.h"
 #import <Atlas/Atlas.h>
 
+static BOOL ATLRunningTests()
+{
+    return (NSClassFromString(@"XCTestCase") || [[[NSProcessInfo processInfo] environment] valueForKey:@"XCInjectBundle"]);
+}
+
 @interface StoryboardAppDelegate ()
 
 @end
@@ -33,7 +38,10 @@
 {
     ATLUserMock *mockUser = [ATLUserMock userWithMockUserName:ATLMockUserNameBlake];
     LYRClientMock *layerClient = [LYRClientMock layerClientMockWithAuthenticatedUserID:mockUser.participantIdentifier];
-    [[LYRMockContentStore sharedStore] hydrateConversationsForAuthenticatedUserID:layerClient.authenticatedUserID count:1];
+    
+    if (!ATLRunningTests()) {
+        [layerClient.store hydrateConversationsForAuthenticatedUserID:layerClient.authenticatedUserID count:1];
+    }
     
     UINavigationController *navigationController = (UINavigationController *)[[[application delegate] window] rootViewController];
     ATLSampleConversationListViewController *controller = navigationController.viewControllers[0];

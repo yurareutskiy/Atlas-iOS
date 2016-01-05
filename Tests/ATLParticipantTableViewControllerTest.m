@@ -61,7 +61,7 @@ NSString *const ATLParticipantTableViewAccessibilityIdentifier;
 {
     self.testInterface = nil;
     self.viewController = nil;
-    [[LYRMockContentStore sharedStore] resetContentStore];
+
     [super tearDown];
 }
 

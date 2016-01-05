@@ -24,6 +24,12 @@
 #import "ATLParticipant.h"
 #import "ATLSampleConversationAvatarItem.h"
 
+@interface ATLConversationViewController ()
+
+@property (nonatomic) BOOL hasAppeared;
+
+@end
+
 @interface ATLSampleConversationListViewController () <ATLConversationListViewControllerDelegate, ATLConversationListViewControllerDataSource>
 
 @end
@@ -45,6 +51,11 @@
 {
     [super viewWillAppear:animated];
     [self.tableView reloadData];
+}
+
+- (void)dealloc
+{
+    self.layerClient = nil;
 }
 
 - (void)handleNewTap

@@ -48,13 +48,12 @@ extern NSString *const ATLMessageInputToolbarSendButton;
 - (void)setUp
 {
     [super setUp];
-
     ATLUserMock *mockUser = [ATLUserMock userWithMockUserName:ATLMockUserNameBlake];
     LYRClientMock *layerClient = [LYRClientMock layerClientMockWithAuthenticatedUserID:mockUser.participantIdentifier];
-    self.testInterface = [ATLTestInterface testIntefaceWithLayerClient:layerClient];
+    self.testInterface = [[ATLTestInterface alloc] init];
     
     ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
-    self.conversation = [self.testInterface conversationWithParticipants:[NSSet setWithObject:mockUser1.participantIdentifier] lastMessageText:nil];
+    self.conversation = [layerClient conversationWithParticipants:[NSSet setWithObject:mockUser1.participantIdentifier] lastMessageText:nil];
 }
 
 - (void)tearDown
@@ -63,8 +62,6 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     [self.testInterface dismissPresentedViewController];
     self.viewController.conversationDataSource = nil;
     self.viewController = nil;
-    
-    [[LYRMockContentStore sharedStore] resetContentStore];
     self.testInterface = nil;
     
     [super tearDown];
@@ -85,7 +82,7 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     [self setRootViewController:self.viewController];
     
     LYRMessagePart *part = [LYRMessagePart messagePartWithText:@"Hey Dude"];
-    LYRMessageMock *message = [LYRMessageMock newMessageWithParts:@[part] senderID:[ATLUserMock userWithMockUserName:ATLMockUserNameKlemen].participantIdentifier];
+    LYRMessageMock *message = [LYRMessageMock newMessageWithParts:@[part] senderID:[ATLUserMock userWithMockUserName:ATLMockUserNameKlemen].participantIdentifier store:self.testInterface.layerClient.store];
     [self.conversation sendMessage:message error:nil];
     [tester waitForViewWithAccessibilityLabel:@"Hey Dude"];
 }
@@ -405,7 +402,7 @@ extern NSString *const ATLMessageInputToolbarSendButton;
 {
     ATLUserMock *mockUser2 = [ATLUserMock userWithMockUserName:ATLMockUserNameKevin];
     LYRClientMock *layerClient = [LYRClientMock layerClientMockWithAuthenticatedUserID:mockUser2.participantIdentifier];
-    self.conversation = [self.testInterface conversationWithParticipants:[NSSet setWithObject:mockUser2.participantIdentifier] lastMessageText:nil];
+    self.conversation = [layerClient conversationWithParticipants:[NSSet setWithObject:mockUser2.participantIdentifier] lastMessageText:nil];
     
     LYRMessagePartMock *part = [LYRMessagePartMock messagePartWithText:@"Test"];
     LYRMessageMock *message = [layerClient newMessageWithParts:@[part] options:nil error:nil];
@@ -413,8 +410,6 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     
     [self setupConversationViewController];
     [self setRootViewController:self.viewController];
-    
-    [tester waitForAbsenceOfViewWithAccessibilityLabel:ATLAvatarImageViewAccessibilityLabel];
 }
 
 - (void)testToVerifyAvatarImageIsDisplayedInGroupConversation
@@ -694,10 +689,7 @@ extern NSString *const ATLMessageInputToolbarSendButton;
         [invocation getArgument:&controller atIndex:2];
         expect(controller).to.equal(self.viewController);
         
-        LYRQuery *query;
-        [invocation getArgument:&query atIndex:3];
-        expect(query).toNot.beNil();
-        
+        LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRConversation class]];
         [invocation setReturnValue:&query];
     }] conversationViewController:[OCMArg any] willLoadWithQuery:[OCMArg any]];
 

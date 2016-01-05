@@ -48,9 +48,7 @@ LYRMessagePartMock *ATLMessagePartWithLocation(CLLocation *location);
 
 + (instancetype)testIntefaceWithLayerClient:(LYRClientMock *)layerClient;
 
-- (LYRConversationMock *)conversationWithParticipants:(NSSet *)participants lastMessageText:(NSString *)lastMessageText;
-
-- (NSString *)conversationLabelForConversation:(LYRConversationMock *)conversation;
+- (NSString *)conversationLabelForConversation:(LYRConversationMock *)conversation layerClient:(LYRClientMock *)client;
 
 - (void)presentViewController:(UIViewController *)controller;
 

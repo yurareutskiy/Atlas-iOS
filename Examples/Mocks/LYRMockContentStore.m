@@ -51,6 +51,7 @@
     return self;
 }
 
+
 - (void)hydrateConversationsForAuthenticatedUserID:(NSString *)authenticatedUserID count:(NSUInteger)count
 {
     self.authenticatedUserID = authenticatedUserID;
@@ -63,7 +64,7 @@
 {
     self.authenticatedUserID = authenticatedUserID;
     ATLUserMock *user = [ATLUserMock randomUser];
-    LYRConversationMock *conversation = [LYRConversationMock newConversationWithParticipants:[NSSet setWithObjects:user.participantIdentifier, self.authenticatedUserID, nil] options:nil];
+    LYRConversationMock *conversation = [LYRConversationMock newConversationWithParticipants:[NSSet setWithObjects:user.participantIdentifier, self.authenticatedUserID, nil] options:nil store:self];
     [self hydrateMessagesForConversation:conversation];
 }
 
@@ -117,7 +118,7 @@
 
 - (void)sendMessagePart:(LYRMessagePartMock *)messagePart toConversation:(LYRConversationMock *)conversation fromUserID:(NSString *)userID
 {
-    LYRMessageMock *message4 = [LYRMessageMock newMessageWithParts:@[messagePart] senderID:userID];
+    LYRMessageMock *message4 = [LYRMessageMock newMessageWithParts:@[messagePart] senderID:userID store:self];
     [conversation sendMessage:message4 error:nil];
 }
 
@@ -263,11 +264,7 @@
             return [NSPredicate predicateWithFormat:@"SELF.%@ <= %@", predicate.property, predicate.value];
 
         case LYRPredicateOperatorIsIn: {
-            if ([predicate.value isKindOfClass:[NSSet class]]) {
-              return [NSPredicate predicateWithFormat:@"ANY SELF.%K IN %@", predicate.property, predicate.value];
-            }
-            NSPredicate *predicatee = [NSPredicate predicateWithFormat:@"SELF.%@ CONTAINS %@ ", predicate.property,  predicate.value];
-            return predicatee;
+            return [NSPredicate predicateWithFormat:@"%@ IN SELF.%@", predicate.value, predicate.property];
         }
         case LYRPredicateOperatorIsNotIn:
             return [NSPredicate predicateWithFormat:@"%@ !IN SELF.%@", predicate.value, predicate.property];

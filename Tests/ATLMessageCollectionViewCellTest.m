@@ -29,7 +29,7 @@
 @property (nonatomic) LYRConversationMock *conversation;
 @property (nonatomic) LYRMessageMock *message;
 @property (nonatomic) ATLSampleConversationViewController *controller;
-
+@property (nonatomic) LYRClientMock *client;
 @end
 
 @implementation ATLMessageCollectionViewCellTest
@@ -43,8 +43,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     [super setUp];
 
     ATLUserMock *mockUser = [ATLUserMock userWithMockUserName:ATLMockUserNameBlake];
-    LYRClientMock *layerClient = [LYRClientMock layerClientMockWithAuthenticatedUserID:mockUser.participantIdentifier];
-    self.testInterface = [ATLTestInterface testIntefaceWithLayerClient:layerClient];
+    self.client = [LYRClientMock layerClientMockWithAuthenticatedUserID:mockUser.participantIdentifier];
+    self.testInterface = [ATLTestInterface testIntefaceWithLayerClient:self.client];
     [self setRootViewController];
     [self resetAppearance];
 }
@@ -54,7 +54,7 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     [tester waitForAnimationsToFinish];
     self.conversation = nil;
     self.controller = nil;
-    [[LYRMockContentStore sharedStore] resetContentStore];
+    self.client = nil;
     [super tearDown];
 }
 
@@ -346,9 +346,10 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
 
 - (void)setRootViewController
 {
+    LYRClientMock *client = [LYRClientMock layerClientMockWithAuthenticatedUserID:ATLMockUserNameBlake];
     ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
     ATLUserMock *mockUser2 = [ATLUserMock userWithMockUserName:ATLMockUserNameKevin];
-    self.conversation = [self.testInterface conversationWithParticipants:[NSSet setWithObjects:mockUser1.participantIdentifier, mockUser2.participantIdentifier, nil] lastMessageText:nil];
+    self.conversation = [client conversationWithParticipants:[NSSet setWithObjects:mockUser1.participantIdentifier, mockUser2.participantIdentifier, nil] lastMessageText:nil];
     
     self.controller = [ATLSampleConversationViewController conversationViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];;
     self.controller.conversation = (LYRConversation *)self.conversation;

@@ -166,6 +166,12 @@ NSString *const ATLConversationListViewControllerDeletionModeGlobal = @"Global";
     self.hasAppeared = YES;
 }
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    self.hasAppeared = NO;
+}
+
 #pragma mark - Public Setters
 
 - (void)setCellClass:(Class<ATLConversationPresenting>)cellClass

@@ -27,12 +27,12 @@ static BOOL ATLIsRunningTests()
 {    
     ATLUserMock *mockUser = [ATLUserMock userWithMockUserName:ATLMockUserNameBlake];
     LYRClientMock *layerClient = [LYRClientMock layerClientMockWithAuthenticatedUserID:mockUser.participantIdentifier];
-    [[LYRMockContentStore sharedStore] hydrateConversationsForAuthenticatedUserID:layerClient.authenticatedUserID count:1];
-    
+
     UIViewController *controller;
     if (ATLIsRunningTests()) {
         controller = [UIViewController new];
     } else {
+        [layerClient.store hydrateConversationsForAuthenticatedUserID:layerClient.authenticatedUserID count:1];
         controller = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)layerClient];
         controller.view.backgroundColor = [UIColor whiteColor];
     }

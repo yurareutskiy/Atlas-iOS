@@ -20,6 +20,9 @@
 
 #import <Foundation/Foundation.h>
 #import "LayerKitMock.h"
+#import "LYRMockContentStore.h"
+
+@class LYRMockContentStore;
 
 extern NSString *const LYRMockObjectsDidChangeNotification;
 extern NSString *const LYRMockObjectChangeObjectKey;
@@ -31,6 +34,7 @@ extern NSString *const LYRMockObjectChangeChangeTypeKey;
 
 @interface LYRClientMock : NSObject
 
+@property (nonatomic) LYRMockContentStore *store;
 @property (nonatomic, readonly) NSString *authenticatedUserID;
 @property (nonatomic, weak) id<LYRClientDelegate> delegate;
 
@@ -46,6 +50,10 @@ extern NSString *const LYRMockObjectChangeChangeTypeKey;
 - (NSOrderedSet *)executeQuery:(LYRQuery *)query error:(NSError **)error;
 - (NSUInteger)countForQuery:(LYRQuery *)query error:(NSError **)error;
 - (LYRQueryControllerMock *)queryControllerWithQuery:(LYRQuery *)query error:(NSError **)error;
+
+// Test Helper
+
+- (LYRConversationMock *)conversationWithParticipants:(NSSet *)participants lastMessageText:(NSString *)lastMessageText;
 
 @end
 

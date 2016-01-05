@@ -60,12 +60,11 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
     self.testInterface = [ATLTestInterface testIntefaceWithLayerClient:layerClient];
     
     ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
-    self.conversation = (LYRConversation *)[self.testInterface conversationWithParticipants:[NSSet setWithObject:mockUser1.participantIdentifier] lastMessageText:nil];
+    self.conversation = (LYRConversation *)[layerClient conversationWithParticipants:[NSSet setWithObject:mockUser1.participantIdentifier] lastMessageText:nil];
 }
 
 - (void)tearDown
 {
-    [[LYRMockContentStore sharedStore] resetContentStore];
     self.testInterface = nil;
     
     [super tearDown];

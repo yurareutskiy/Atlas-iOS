@@ -24,23 +24,25 @@
 
 @property (nonatomic) NSOrderedSet *objects;
 @property (nonatomic) NSOrderedSet *oldObjects;
+@property (nonatomic) LYRMockContentStore *store;
 
 @end
 
 @implementation LYRQueryControllerMock
 
-+ (instancetype)initWithQuery:(LYRQuery *)query
++ (instancetype)initWithQuery:(LYRQuery *)query store:(LYRMockContentStore *)store
 {
-    return [[self alloc] initWithQuery:query];
+    return [[self alloc] initWithQuery:query store:store];
 }
 
-- (id)initWithQuery:(LYRQuery *)query
+- (id)initWithQuery:(LYRQuery *)query store:(LYRMockContentStore *)store
 {
     self = [super init];
     if (self) {
         _query = query;
         _objects = [NSOrderedSet new];
         _objects = [NSOrderedSet new];
+        _store = store;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(mockObjectsDidChange:)
                                                      name:LYRMockObjectsDidChangeNotification
@@ -77,7 +79,7 @@
 
 - (BOOL)execute:(NSError **)error
 {
-    self.objects = [[LYRMockContentStore sharedStore] fetchObjectsWithClass:self.query.queryableClass predicate:self.query.predicate sortDescriptior:self.query.sortDescriptors];
+    self.objects = [self.store fetchObjectsWithClass:self.query.queryableClass predicate:self.query.predicate sortDescriptior:self.query.sortDescriptors];
     return YES;
 }
 
@@ -141,13 +143,9 @@
 
 - (NSDictionary *)indexPathsForObjectsWithIdentifiers:(NSSet *)objectIdentifiers;
 {
-    NSUInteger maxIndex = [[LYRMockContentStore sharedStore] allMessages].count - 1;
+    NSUInteger maxIndex = [self.store allMessages].count - 1;
     return [[NSDictionary alloc] initWithObjects:@[[NSIndexPath indexPathForRow:0 inSection:maxIndex]] forKeys:@[self.layerClient.authenticatedUserID]];
 }
 
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
 
 @end

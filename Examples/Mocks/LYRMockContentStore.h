@@ -20,6 +20,8 @@
 
 #import <Foundation/Foundation.h>
 #import "LayerKitMock.h"
+#import "LYRConversationMock.h"
+#import "LYRMessageMock.h"
 
 /**
  @abstract The `LYRMockContentStore` provides a simple, in-memory cache for mock Layer messaging content. The class is meant to be used
@@ -37,10 +39,6 @@
  */
 @property (nonatomic) BOOL shouldBroadcastChanges;
 
-/**
- @abstract Singleton Accessor for the mock content store
- */
-+ (id)sharedStore;
 
 /**
  @abstrace Creates an arbitrary number of Layer conversations, each with 11 messages.

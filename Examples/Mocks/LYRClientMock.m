@@ -19,7 +19,6 @@
 //
 
 #import "LYRClientMock.h"
-#import "LYRMockContentStore.h"
 
 #pragma mark - LYRClientMock -
 
@@ -52,8 +51,14 @@ NSString *const LYRMockObjectChangeChangeTypeKey = @"mockObjectChangeChangeTypeK
     self = [super init];
     if (self) {
         _authenticatedUserID = authenticatedUserID;
+        _store = [[LYRMockContentStore alloc] init];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    self.store = nil;
 }
 
 - (instancetype)init
@@ -67,34 +72,47 @@ NSString *const LYRMockObjectChangeChangeTypeKey = @"mockObjectChangeChangeTypeK
 {
     NSMutableSet *allParticipants = [participants mutableCopy];
     [allParticipants addObject:self.authenticatedUserID];
-    return [LYRConversationMock newConversationWithParticipants:allParticipants options:options];
+    return [LYRConversationMock newConversationWithParticipants:allParticipants options:options store:self.store];
 }
 
 - (LYRMessageMock *)newMessageWithParts:(NSArray *)messageParts options:(NSDictionary *)options error:(NSError *__autoreleasing *)error
 {
-    return [LYRMessageMock newMessageWithParts:messageParts senderID:self.authenticatedUserID];
+    return [LYRMessageMock newMessageWithParts:messageParts senderID:self.authenticatedUserID store:self.store];
 }
 
 - (LYRMessageMock *)newPlatformMessageWithParts:(NSArray *)messageParts senderName:(NSString *)senderName options:(NSDictionary *)options error:(NSError *__autoreleasing *)error
 {
-    return [LYRMessageMock newMessageWithParts:messageParts senderName:senderName];
+    return [LYRMessageMock newMessageWithParts:messageParts senderName:senderName store:self.store];
 }
 
 - (NSOrderedSet *)executeQuery:(LYRQuery *)query error:(NSError *__autoreleasing *)error
 {
-    return [[LYRMockContentStore sharedStore] fetchObjectsWithClass:query.queryableClass predicate:query.predicate sortDescriptior:query.sortDescriptors];
+    return [self.store fetchObjectsWithClass:query.queryableClass predicate:query.predicate sortDescriptior:query.sortDescriptors];
 }
 
 - (NSUInteger)countForQuery:(LYRQuery *)query error:(NSError *__autoreleasing *)error
 {
-    return [[LYRMockContentStore sharedStore] fetchObjectsWithClass:query.queryableClass predicate:query.predicate sortDescriptior:query.sortDescriptors].count;
+    return [self.store fetchObjectsWithClass:query.queryableClass predicate:query.predicate sortDescriptior:query.sortDescriptors].count;
 }
 
 - (LYRQueryControllerMock *)queryControllerWithQuery:(LYRQuery *)query error:(NSError *__autoreleasing *)error
 {
-    LYRQueryControllerMock *mock = [LYRQueryControllerMock initWithQuery:query];
+    LYRQueryControllerMock *mock = [LYRQueryControllerMock initWithQuery:query store:self.store];
     mock.layerClient = self;
     return mock;
+}
+
+#pragma Test Helpers
+
+- (LYRConversationMock *)conversationWithParticipants:(NSSet *)participants lastMessageText:(NSString *)lastMessageText
+{
+    LYRConversationMock *conversation = [self newConversationWithParticipants:participants options:nil error:nil];
+    if (lastMessageText) {
+        LYRMessagePart *part = [LYRMessagePart messagePartWithText:lastMessageText];
+        LYRMessageMock *message = [self newMessageWithParts:@[part] options:nil error:nil];
+        [conversation sendMessage:message error:nil];
+    }
+    return conversation;
 }
 
 @end
