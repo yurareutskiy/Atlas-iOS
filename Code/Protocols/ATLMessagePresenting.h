@@ -19,7 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ATLParticipant.h"
+#import "ATLIdentity.h"
 @import LayerKit;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  @abstract Informs the receiver of its sender.
  */
-- (void)updateWithSender:(nullable id<ATLParticipant>)sender;
+- (void)updateWithSender:(nullable id<ATLIdentity>)sender;
 
 /**
  @abstract A boolean to determine whether or not the receiver should display an avatar item.

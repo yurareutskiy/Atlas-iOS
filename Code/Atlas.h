@@ -56,6 +56,7 @@
 #import "ATLMessagePresenting.h"
 #import "ATLParticipantPresenting.h"
 #import "ATLParticipant.h"
+#import "ATLIdentity.h"
 
 ///----------------
 /// @name Utilities

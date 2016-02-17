@@ -128,7 +128,7 @@ CGFloat const ATLAvatarImageTailPadding = 4.0f;
     self.shouldDisplayAvatar = shouldDisplayAvatarItem;
 }
 
-- (void)updateWithSender:(id<ATLParticipant>)sender
+- (void)updateWithSender:(id<ATLIdentity>)sender
 {
     if (sender) {
         self.avatarImageView.hidden = NO;

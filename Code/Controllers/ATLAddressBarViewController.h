@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ATLAddressBarView.h"
-#import "ATLParticipant.h"
+#import "ATLIdentity.h"
 
 @class ATLAddressBarViewController;
 
@@ -45,14 +45,14 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion Upon selection, the participant's full name will be appended to any existing text in the `ATLAddressBarTextView`.
  The set of participants represents the identifiers for all currently displayed participants.
  */
-- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didSelectParticipant:(id<ATLParticipant>)participant;
+- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didSelectParticipant:(id<ATLIdentity>)participant;
 
 /**
  @abstract Informs the delegate that the user removed a participant from the address bar.
  @param addressBarViewController The `ATLAddressBarViewController` in which the removal occurred.
  @param participant The participant who was removed.
  */
-- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didRemoveParticipant:(id<ATLParticipant>)participant;
+- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didRemoveParticipant:(id<ATLIdentity>)participant;
 
 /**
  @abstract Informs the delegate that the user finished searching.
@@ -113,14 +113,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  @abstract An ordered set of the currently selected participants.
  */
-@property (nonatomic) NSOrderedSet <id<ATLParticipant>>*selectedParticipants;
+@property (nonatomic) NSOrderedSet <id<ATLIdentity>>*selectedParticipants;
 
 /**
  @abstract Informs the receiver that a selection occurred outside of the controller and a participant should be added to the address
  bar.
  @param participant The participant to select.
  */
-- (void)selectParticipant:(id<ATLParticipant>)participant;
+- (void)selectParticipant:(id<ATLIdentity>)participant;
 
 ///-------------------------
 /// @name Reloading the View

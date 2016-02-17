@@ -36,12 +36,12 @@ typedef NS_ENUM(NSUInteger, ATLMockUserName){
 /**
  @abstract The `ATLUserMock` models a sample user within the Atlas sample project. Instances of `ATLUserMock` conform to the `ATLParticipant` protocol.
  */
-@interface ATLUserMock : NSObject <ATLParticipant>
+@interface ATLUserMock : NSObject <ATLIdentity>
 
 
 @property (nonatomic) NSString *firstName;
 @property (nonatomic) NSString *lastName;
-@property (nonatomic) NSString *fullName;
+@property (nonatomic) NSString *displayName;
 @property (nonatomic) UIImage *avatarImage;
 @property (nonatomic) NSURL *avatarImageURL;
 @property (nonatomic) NSString *participantIdentifier;

@@ -21,7 +21,6 @@
 #import <UIKit/UIKit.h>
 @import LayerKit;
 #import <MapKit/MapKit.h>
-#import "ATLParticipant.h"
 #import "ATLBaseConversationViewController.h"
 
 typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
@@ -32,6 +31,7 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
 
 @class ATLConversationViewController;
 @protocol ATLMessagePresenting;
+@protocol ATLIdentity;
 
 ///---------------------------------------
 /// @name Delegate
@@ -113,7 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param participantForIdentifier The participant identifier.
  @return An object conforming to the `ATLParticipant` protocol.
  */
-- (id<ATLParticipant>)conversationViewController:(ATLConversationViewController *)conversationViewController participantForIdentifier:(NSString *)participantIdentifier;
+- (id<ATLIdentity>)conversationViewController:(ATLConversationViewController *)conversationViewController identityForIdentifier:(NSString *)participantIdentifier;
 
 /**
  @abstract Asks the data source for an `NSAttributedString` representation of a given date.

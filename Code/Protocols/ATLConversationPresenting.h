@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 @import LayerKit;
-#import "ATLAvatarItem.h"
+@protocol ATLAvatarItem;
 
 NS_ASSUME_NONNULL_BEGIN
 /**

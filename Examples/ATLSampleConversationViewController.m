@@ -49,7 +49,7 @@
 
 #pragma mark - ATLConversationViewControllerDataSource methods
 
-- (id<ATLParticipant>)conversationViewController:(ATLConversationViewController *)conversationViewController participantForIdentifier:(NSString *)participantIdentifier
+- (id<ATLIdentity>)conversationViewController:(ATLConversationViewController *)conversationViewController identityForIdentifier:(NSString *)participantIdentifier
 {
     return [ATLUserMock mockUserForIdentifier:participantIdentifier];
 }
@@ -92,7 +92,7 @@
         self.title = @"Personal";
     } else if (otherParticipantIDs.count == 1) {
         NSString *otherParticipantID = [otherParticipantIDs anyObject];
-        id<ATLParticipant> participant = [ATLUserMock mockUserForIdentifier:otherParticipantID];
+        id<ATLIdentity> participant = [ATLUserMock mockUserForIdentifier:otherParticipantID];
         if (participant) {
             self.title = participant.firstName;
         } else {
@@ -111,7 +111,7 @@
     [self.navigationController presentViewController:navigationController animated:YES completion:nil];
 }
 
-- (void)participantTableViewController:(ATLParticipantTableViewController *)participantTableViewController didSelectParticipant:(id<ATLParticipant>)participant
+- (void)participantTableViewController:(ATLParticipantTableViewController *)participantTableViewController didSelectParticipant:(id<ATLIdentity>)participant
 {
     [self.addressBarController selectParticipant:participant];
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];

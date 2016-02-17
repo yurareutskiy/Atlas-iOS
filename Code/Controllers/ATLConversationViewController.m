@@ -30,6 +30,7 @@
 #import "ATLConversationDataSource.h"
 #import "ATLMediaAttachment.h"
 #import "ATLLocationManager.h"
+#import "ATLIdentity.h"
 
 @import AVFoundation;
 
@@ -287,7 +288,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     if ([participantIdentifiers containsObject:self.layerClient.authenticatedUserID]) {
         [participantIdentifiers removeObject:self.layerClient.authenticatedUserID];
     }
-    [self.addressBarController setSelectedParticipants:[self participantsForIdentifiers:participantIdentifiers]];
+    [self.addressBarController setSelectedParticipants:[self identitiesForIdentifiers:participantIdentifiers]];
 }
 
 # pragma mark - UICollectionViewDataSource
@@ -370,7 +371,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
         dateString = [self attributedStringForMessageDate:[self.conversationDataSource messageAtCollectionViewSection:section]];
     }
     if ([self shouldDisplaySenderLabelForSection:section]) {
-        participantName = [self participantNameForMessage:[self.conversationDataSource messageAtCollectionViewSection:section]];
+        participantName = [self identityDisplayNameForMessage:[self.conversationDataSource messageAtCollectionViewSection:section]];
     }
     CGFloat height = [ATLConversationCollectionViewHeader headerHeightWithDateString:dateString participantName:participantName inView:self.collectionView];
     return CGSizeMake(0, height);
@@ -424,7 +425,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     [cell shouldDisplayAvatarItem:willDisplayAvatarItem];
     
     if ([self shouldDisplayAvatarItemAtIndexPath:indexPath]) {
-        [cell updateWithSender:[self participantForIdentifier:message.sender.userID]];
+        [cell updateWithSender:[self identityForIdentifier:message.sender.userID]];
     } else {
         [cell updateWithSender:nil];
     }
@@ -452,7 +453,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
         [header updateWithAttributedStringForDate:[self attributedStringForMessageDate:message]];
     }
     if ([self shouldDisplaySenderLabelForSection:indexPath.section]) {
-        [header updateWithParticipantName:[self participantNameForMessage:message]];
+        [header updateWithParticipantName:[self identityDisplayNameForMessage:message]];
     }
 }
 
@@ -615,7 +616,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 
 - (LYRMessage *)messageForMessageParts:(NSArray *)parts MIMEType:(NSString *)MIMEType pushText:(NSString *)pushText;
 {
-    NSString *senderName = [[self participantForIdentifier:self.layerClient.authenticatedUserID] fullName];
+    NSString *senderName = [[self identityForIdentifier:self.layerClient.authenticatedUserID] displayName];
     NSString *completePushText;
     if (!pushText) {
         if ([MIMEType isEqualToString:ATLMIMETypeImageGIF]) {
@@ -828,7 +829,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 {
     NSMutableOrderedSet *knownParticipantsTyping = [NSMutableOrderedSet new];
     [self.typingParticipantIDs enumerateObjectsUsingBlock:^(NSString *participantID, NSUInteger idx, BOOL *stop) {
-        id<ATLParticipant> participant = [self participantForIdentifier:participantID];
+        id<ATLIdentity> participant = [self identityForIdentifier:participantID];
         if (participant) [knownParticipantsTyping addObject:participant];
     }];
     [self.typingIndicatorController updateWithParticipants:knownParticipantsTyping animated:animated];
@@ -879,13 +880,13 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     self.messageInputToolbar.hidden = NO;
 }
 
-- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didSelectParticipant:(id<ATLParticipant>)participant
+- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didSelectParticipant:(id<ATLIdentity>)participant
 {
     self.canDisableAddressBar = NO;
     [self configureConversationForAddressBar];
 }
 
-- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didRemoveParticipant:(id<ATLParticipant>)participant
+- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didRemoveParticipant:(id<ATLIdentity>)participant
 {
     [self configureConversationForAddressBar];
 }
@@ -972,7 +973,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     [participantIdentifiers minusOrderedSet:removedIdentifiers];
     [participantIdentifiers unionOrderedSet:addedIdentifiers];
     
-    NSOrderedSet *participants = [self participantsForIdentifiers:participantIdentifiers];
+    NSOrderedSet *participants = [self identitiesForIdentifiers:participantIdentifiers];
     self.addressBarController.selectedParticipants = participants;
 }
 
@@ -1096,10 +1097,10 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 
 #pragma mark - Data Source
 
-- (id<ATLParticipant>)participantForIdentifier:(NSString *)identifier
+- (id<ATLIdentity>)identityForIdentifier:(NSString *)identifier
 {
-    if ([self.dataSource respondsToSelector:@selector(conversationViewController:participantForIdentifier:)]) {
-        return [self.dataSource conversationViewController:self participantForIdentifier:identifier];
+    if ([self.dataSource respondsToSelector:@selector(conversationViewController:identityForIdentifier:)]) {
+        return [self.dataSource conversationViewController:self identityForIdentifier:identifier];
     } else {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"ATLConversationViewControllerDelegate must return a participant for an identifier" userInfo:nil];
     }
@@ -1311,25 +1312,25 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     return [self.layerClient executeQuery:query error:nil].lastObject;
 }
 
-- (NSOrderedSet *)participantsForIdentifiers:(NSOrderedSet *)identifiers
+- (NSOrderedSet *)identitiesForIdentifiers:(NSOrderedSet *)identifiers
 {
     NSMutableOrderedSet *participants = [NSMutableOrderedSet new];
     for (NSString *participantIdentifier in identifiers) {
-        id<ATLParticipant> participant = [self participantForIdentifier:participantIdentifier];
+        id<ATLIdentity> participant = [self identityForIdentifier:participantIdentifier];
         if (!participant) continue;
         [participants addObject:participant];
     }
     return participants;
 }
 
-- (NSString *)participantNameForMessage:(LYRMessage *)message
+- (NSString *)identityDisplayNameForMessage:(LYRMessage *)message
 {
     NSString *participantName;
     if (message.sender.userID) {
-        id<ATLParticipant> participant = [self participantForIdentifier:message.sender.userID];
-        participantName = participant.fullName ?: ATLLocalizedString(@"atl.conversation.participant.unknown.key", @"Unknown User", nil);
+        id<ATLIdentity> participant = [self identityForIdentifier:message.sender.userID];
+        participantName = participant.displayName ?: ATLLocalizedString(@"atl.conversation.participant.unknown.key", @"Unknown User", nil);
     } else {
-        participantName = message.sender.name;
+        participantName = message.sender.displayName;
     }
     return participantName;
 }

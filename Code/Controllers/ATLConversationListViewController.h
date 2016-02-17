@@ -21,8 +21,7 @@
 #import <UIKit/UIKit.h>
 @import LayerKit;
 #import "ATLConversationTableViewCell.h"
-#import "ATLAvatarItem.h"
-#import "ATLParticipant.h"
+@protocol ATLIdentity;
 
 @class ATLConversationListViewController;
 
@@ -65,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param searchText The search text that was used for search.
  @param completion The block has has no return value and accepts a single argument: an NSSet of objects conforming to the ATLParticipant protocol that were found to match the search text.
  */
-- (void)conversationListViewController:(ATLConversationListViewController *)conversationListViewController didSearchForText:(NSString *)searchText completion:(void (^)(NSSet <id<ATLParticipant>>*filteredParticipants))completion;
+- (void)conversationListViewController:(ATLConversationListViewController *)conversationListViewController didSearchForText:(NSString *)searchText completion:(void (^)(NSSet <id<ATLIdentity>>*filteredParticipants))completion;
 
 @end
 

@@ -91,7 +91,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
     [self sizeAddressBarView];
 }
 
-- (void)selectParticipant:(id<ATLParticipant>)participant
+- (void)selectParticipant:(id<ATLIdentity>)participant
 {
     if (!participant) return;
 
@@ -150,8 +150,8 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ATLMParticpantCellIdentifier];
-    id<ATLParticipant> participant = self.participants[indexPath.row];
-    cell.textLabel.text = participant.fullName;
+    id<ATLIdentity> participant = self.participants[indexPath.row];
+    cell.textLabel.text = participant.displayName;
     cell.textLabel.font = ATLMediumFont(16);
     cell.textLabel.textColor = ATLBlueColor();
     return cell;
@@ -159,7 +159,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<ATLParticipant> participant = self.participants[indexPath.row];
+    id<ATLIdentity> participant = self.participants[indexPath.row];
     [self selectParticipant:participant];
 }
 
@@ -201,7 +201,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
         // If range.length is 1, we need to select the participant
         if (range.length == 1) {
             NSRange effectiveRange;
-            id<ATLParticipant> participant = [attributedString attribute:ATLAddressBarParticipantAttributeName atIndex:range.location longestEffectiveRange:&effectiveRange inRange:NSMakeRange(0, attributedString.length)];
+            id<ATLIdentity> participant = [attributedString attribute:ATLAddressBarParticipantAttributeName atIndex:range.location longestEffectiveRange:&effectiveRange inRange:NSMakeRange(0, attributedString.length)];
             if (participant && effectiveRange.location + effectiveRange.length == range.location + range.length) {
                 textView.selectedRange = effectiveRange;
                 return NO;
@@ -232,7 +232,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
     [removedParticipants minusOrderedSet:participants];
     _selectedParticipants = participants;
     if ([self.delegate respondsToSelector:@selector(addressBarViewController:didRemoveParticipant:)]) {
-        for (id<ATLParticipant> participant in removedParticipants) {
+        for (id<ATLIdentity> participant in removedParticipants) {
             [self.delegate addressBarViewController:self didRemoveParticipant:participant];
         }
     }
@@ -288,7 +288,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
         return;
     }
     NSRange participantRange;
-    id<ATLParticipant> participant = [attributedString attribute:ATLAddressBarParticipantAttributeName atIndex:tapIndex - 1 longestEffectiveRange:&participantRange inRange:NSMakeRange(0, attributedString.length)];
+    id<ATLIdentity> participant = [attributedString attribute:ATLAddressBarParticipantAttributeName atIndex:tapIndex - 1 longestEffectiveRange:&participantRange inRange:NSMakeRange(0, attributedString.length)];
     if (participant) {
         textView.selectedRange = participantRange;
     } else {
@@ -311,7 +311,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 - (void)notifyDelegateOfSelectedParticipants:(NSMutableOrderedSet *)selectedParticipants
 {
     if ([self.delegate respondsToSelector:@selector(addressBarViewController:didSelectParticipant:)]) {
-        for (id<ATLParticipant> addedParticipant in selectedParticipants) {
+        for (id<ATLIdentity> addedParticipant in selectedParticipants) {
             [self.delegate addressBarViewController:self didSelectParticipant:addedParticipant];
         }
     }
@@ -320,7 +320,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 - (void)notifyDelegateOfRemovedParticipants:(NSMutableOrderedSet *)removedParticipants
 {
     if ([self.delegate respondsToSelector:@selector(addressBarViewController:didRemoveParticipant:)]) {
-        for (id<ATLParticipant> removedParticipant in removedParticipants) {
+        for (id<ATLIdentity> removedParticipant in removedParticipants) {
             [self.delegate addressBarViewController:self didRemoveParticipant:removedParticipant];
         }
     }
@@ -359,7 +359,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 {
     NSAttributedString *attributedString = textView.attributedText;
     __block NSRange searchRange = NSMakeRange(NSNotFound, 0);
-    [attributedString enumerateAttribute:ATLAddressBarParticipantAttributeName inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id<ATLParticipant> participant, NSRange range, BOOL *stop) {
+    [attributedString enumerateAttribute:ATLAddressBarParticipantAttributeName inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id<ATLIdentity> participant, NSRange range, BOOL *stop) {
         if (participant) return;
         searchRange = range;
     }];
@@ -389,7 +389,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 - (NSOrderedSet *)participantsInAttributedString:(NSAttributedString *)attributedString
 {
     NSMutableOrderedSet *participants = [NSMutableOrderedSet new];
-    [attributedString enumerateAttribute:ATLAddressBarParticipantAttributeName inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id<ATLParticipant> participant, NSRange range, BOOL *stop) {
+    [attributedString enumerateAttribute:ATLAddressBarParticipantAttributeName inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id<ATLIdentity> participant, NSRange range, BOOL *stop) {
         if (!participant) return;
         [participants addObject:participant];
     }];
@@ -399,19 +399,19 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 - (NSAttributedString *)attributedStringForParticipants:(NSOrderedSet *)participants
 {
     NSMutableAttributedString *attributedString = [NSMutableAttributedString new];
-    for (id<ATLParticipant> participant in participants) {
+    for (id<ATLIdentity> participant in participants) {
         NSAttributedString *attributedParticipant = [self attributedStringForParticipant:participant];
         [attributedString appendAttributedString:attributedParticipant];
     }
     return attributedString;
 }
 
-- (NSAttributedString *)attributedStringForParticipant:(id<ATLParticipant>)participant
+- (NSAttributedString *)attributedStringForParticipant:(id<ATLIdentity>)participant
 {
     ATLAddressBarTextView *textView = self.addressBarView.addressBarTextView;
     NSMutableAttributedString *attributedString = [NSMutableAttributedString new];
 
-    NSAttributedString *attributedName = [[NSAttributedString alloc] initWithString:participant.fullName attributes:@{ATLAddressBarPartAttributeName: ATLAddressBarNamePart, ATLAddressBarPartAttributeName: ATLAddressBarNamePart, NSForegroundColorAttributeName: textView.addressBarHighlightColor}];
+    NSAttributedString *attributedName = [[NSAttributedString alloc] initWithString:participant.displayName attributes:@{ATLAddressBarPartAttributeName: ATLAddressBarNamePart, ATLAddressBarPartAttributeName: ATLAddressBarNamePart, NSForegroundColorAttributeName: textView.addressBarHighlightColor}];
     [attributedString appendAttributedString:attributedName];
 
     NSAttributedString *attributedDelimiter = [[NSAttributedString alloc] initWithString:@", " attributes:@{ATLAddressBarPartAttributeName: ATLAddressBarDelimiterPart, NSForegroundColorAttributeName: [UIColor grayColor]}];
@@ -430,7 +430,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
         if (selectedRange.location == 0) return selectedRange;
         if (selectedRange.location == attributedString.length) return selectedRange;
         NSRange participantRange;
-        id<ATLParticipant> participant = [attributedString attribute:ATLAddressBarParticipantAttributeName atIndex:selectedRange.location longestEffectiveRange:&participantRange inRange:NSMakeRange(0, attributedString.length)];
+        id<ATLIdentity> participant = [attributedString attribute:ATLAddressBarParticipantAttributeName atIndex:selectedRange.location longestEffectiveRange:&participantRange inRange:NSMakeRange(0, attributedString.length)];
         if (!participant) return selectedRange;
         if (selectedRange.location <= participantRange.location) return selectedRange;
         NSUInteger participantStartIndex = participantRange.location;
@@ -444,7 +444,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
     }
 
     __block NSRange adjustedRange = selectedRange;
-    [attributedString enumerateAttribute:ATLAddressBarParticipantAttributeName inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id<ATLParticipant> participant, NSRange range, BOOL *stop) {
+    [attributedString enumerateAttribute:ATLAddressBarParticipantAttributeName inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id<ATLIdentity> participant, NSRange range, BOOL *stop) {
         if (!participant) return;
         if (NSIntersectionRange(selectedRange, range).length == 0) return;
         adjustedRange = NSUnionRange(adjustedRange, range);
@@ -464,7 +464,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
     [mutableParticipants removeObject:participants.firstObject];
     
     __block NSUInteger remainingParticipants = mutableParticipants.count;
-    [mutableParticipants enumerateObjectsUsingBlock:^(id<ATLParticipant> participant, NSUInteger idx, BOOL *stop) {
+    [mutableParticipants enumerateObjectsUsingBlock:^(id<ATLIdentity> participant, NSUInteger idx, BOOL *stop) {
         NSString *othersString = [self otherStringWithRemainingParticipants:remainingParticipants];
         NSString *truncatedString = [NSString stringWithFormat:@"%@ %@", disabledString, othersString];
         if ([self textViewHasSpaceForParticipantString:truncatedString]) {
