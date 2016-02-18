@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param searchText The search text that was used for search.
  @param completion The block has has no return value and accepts a single argument: an NSSet of objects conforming to the ATLParticipant protocol that were found to match the search text.
  */
-- (void)conversationListViewController:(ATLConversationListViewController *)conversationListViewController didSearchForText:(NSString *)searchText completion:(void (^)(NSSet <id<ATLParticipant>>*filteredParticipants))completion;
+- (void)conversationListViewController:(ATLConversationListViewController *)conversationListViewController didSearchForText:(NSString *)searchText completion:(void (^)(NSSet <id<ATLParticipant>> *filteredParticipants))completion;
 
 @end
 
@@ -251,10 +251,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  @abstract The controller used to display search results.
  */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-@property (nonatomic, readonly) UISearchDisplayController *searchController;
-#pragma GCC diagnostic pop
+@property (nonatomic, readonly) UISearchController *searchController;
 
 /**
  @abstract A boolean value that determines if the controller should show a search bar and search display controller.
