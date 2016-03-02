@@ -21,7 +21,6 @@
 #import "ATLSampleConversationListViewController.h"
 #import "ATLSampleConversationViewController.h"
 #import "LYRClientMock.h"
-#import "ATLParticipant.h"
 #import "ATLSampleConversationAvatarItem.h"
 
 @interface ATLSampleConversationListViewController () <ATLConversationListViewControllerDelegate, ATLConversationListViewControllerDataSource>

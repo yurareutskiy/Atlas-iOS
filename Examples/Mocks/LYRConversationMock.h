@@ -19,8 +19,10 @@
 //
 #import <Foundation/Foundation.h>
 #import "LYRMessageMock.h"
+#import "LYRMockContentStore.h"
 
 @class LYRMessageMock;
+@class LYRMockContentStore;
 
 @interface LYRConversationMock : NSObject <LYRQueryable>
 
@@ -32,7 +34,7 @@
 @property (nonatomic, readonly) BOOL isDeleted;
 @property (nonatomic, readonly) NSDictionary *metadata;
 
-+ (instancetype)newConversationWithParticipants:(NSSet *)participants options:(NSDictionary *)options;
++ (instancetype)newConversationWithParticipants:(NSSet *)participants options:(NSDictionary *)options store:(LYRMockContentStore *)store;
 
 - (BOOL)sendMessage:(LYRMessageMock *)message error:(NSError **)error;
 

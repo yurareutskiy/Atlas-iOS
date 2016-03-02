@@ -17,7 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-#import "ATLParticipantTableViewController.h"
+
+#import <Atlas/Atlas.h>
 
 @interface ATLSampleParticipantTableViewController : ATLParticipantTableViewController
 

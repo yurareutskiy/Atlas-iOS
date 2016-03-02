@@ -21,6 +21,9 @@
 #import <Foundation/Foundation.h>
 #import "LayerKitMock.h"
 
+@class LYRConversationMock;
+@class LYRMessageMock;
+
 /**
  @abstract The `LYRMockContentStore` provides a simple, in-memory cache for mock Layer messaging content. The class is meant to be used
  for user interface testing with Atlas components.

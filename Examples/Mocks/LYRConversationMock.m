@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+
 #import "LYRConversationMock.h"
-#import "LYRMockContentStore.h"
 
 NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
 {
@@ -58,15 +58,17 @@ NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
 @property (nonatomic, readwrite) BOOL hasUnreadMessages;
 @property (nonatomic, readwrite) BOOL isDeleted;
 @property (nonatomic, readwrite) NSDictionary *metadata;
+@property (nonatomic) LYRMockContentStore *contentStore;
 
 @end
 
 @implementation LYRConversationMock
 
-+ (instancetype)newConversationWithParticipants:(NSSet *)participants options:(NSDictionary *)options
++ (instancetype)newConversationWithParticipants:(NSSet *)participants options:(NSDictionary *)options store:(LYRMockContentStore *)store
 {
     LYRConversationMock *mock = [[self alloc] initWithParticipants:participants];
     mock.metadata = [options valueForKey:LYRConversationOptionsMetadataKey];
+    mock.contentStore = store;
     return mock;
 }
 
@@ -91,9 +93,9 @@ NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
     if (!self.identifier) {
         self.identifier = [NSURL URLWithString:[[NSUUID UUID] UUIDString]];
         self.createdAt = [NSDate date];
-        [[LYRMockContentStore sharedStore] insertConversation:self];
+        [self.contentStore insertConversation:self];
     }
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore broadcastChanges];
     return YES;
 }
 
@@ -124,7 +126,7 @@ NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
     }];
     
     message.recipientStatusByUserID = recipientStatus;
-    [[LYRMockContentStore sharedStore] insertMessage:message];
+    [self.contentStore insertMessage:message];
 }
 
 #pragma mark - Public Mutating Participants
@@ -135,7 +137,7 @@ NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
     NSMutableSet *participantsCopy = [self.participants mutableCopy];
     [participantsCopy unionSet:participants];
     self.participants = participantsCopy;
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore broadcastChanges];
     return YES;
 }
 
@@ -145,7 +147,7 @@ NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
     NSMutableSet *participantsCopy = [self.participants mutableCopy];
     [participantsCopy minusSet:participants];
     self.participants = participantsCopy;
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore broadcastChanges];
     return YES;
 }
 
@@ -154,19 +156,19 @@ NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
 - (void)setValue:(NSString *)value forMetadataAtKeyPath:(NSString *)keyPath
 {
     [self.metadata setValue:value forKeyPath:keyPath];
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore broadcastChanges];
 }
 
 - (void)setValuesForMetadataKeyPathsWithDictionary:(NSDictionary *)metadata merge:(BOOL)merge
 {
     [self.metadata setValuesForKeysWithDictionary:metadata];
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore broadcastChanges];
 }
 
 - (void)deleteValueForMetadataAtKeyPath:(NSString *)keyPath
 {
     [self.metadata setValue:nil forKeyPath:keyPath];
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore broadcastChanges];
 }
 
 #pragma mark - Typing Indicator
@@ -181,8 +183,8 @@ NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
 - (BOOL)delete:(LYRDeletionMode)deletionMode error:(NSError **)error
 {
     self.isDeleted = YES;
-    [[LYRMockContentStore sharedStore] deleteConversation:self];
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore deleteConversation:self];
+    [self.contentStore broadcastChanges];
     return YES;
 }
 
@@ -191,7 +193,7 @@ NSData *MediaAttachmentDataFromInputStream(NSInputStream *inputStream)
 - (BOOL)markAllMessagesAsRead:(NSError **)error
 {
     self.hasUnreadMessages = NO;
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore broadcastChanges];
     return YES;
 }
 

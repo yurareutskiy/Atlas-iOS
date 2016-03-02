@@ -19,8 +19,9 @@
 //
 #import <Foundation/Foundation.h>
 #import "LYRClientMock.h"
+#import "LYRMockContentStore.h"
 
-@class LYRQueryControllerMock, LYRClientMock;
+@class LYRQueryControllerMock, LYRClientMock, LYRMockContentStore;
 
 @protocol LYRQueryControllerMockDelegate <NSObject>
 
@@ -43,7 +44,7 @@
 @property (nonatomic) NSInteger paginationWindow;
 @property (nonatomic, readonly) NSUInteger totalNumberOfObjects;
 
-+ (instancetype)initWithQuery:(LYRQuery *)query;
++ (instancetype)initWithQuery:(LYRQuery *)query store:(LYRMockContentStore *)store;
 
 - (NSUInteger)numberOfSections;
 

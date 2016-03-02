@@ -22,8 +22,6 @@
 #import <XCTest/XCTest.h>
 #import "ATLTestInterface.h"
 #import "ATLSampleConversationViewController.h"
-#import "ATLMediaAttachment.h"
-#import "ATLConstants.h"
 #import "ATLTestUtilities.h"
 
 @interface ATLConversationViewController ()
@@ -178,7 +176,6 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
 - (void)testToVerifyTextEnterendDoesNotEnableButtons
 {
     [self setRootViewController];
-    self.viewController.conversation = nil;
     
     ATLMessageInputToolbar *toolBar = (ATLMessageInputToolbar *)[tester waitForViewWithAccessibilityLabel:ATLMessageInputToolbarAccessibilityLabel];
     toolBar.rightAccessoryButton.enabled = NO;

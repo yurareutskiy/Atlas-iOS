@@ -63,7 +63,7 @@
 {
     self.authenticatedUserID = authenticatedUserID;
     ATLUserMock *user = [ATLUserMock randomUser];
-    LYRConversationMock *conversation = [LYRConversationMock newConversationWithParticipants:[NSSet setWithObjects:user.participantIdentifier, self.authenticatedUserID, nil] options:nil];
+    LYRConversationMock *conversation = [LYRConversationMock newConversationWithParticipants:[NSSet setWithObjects:user.participantIdentifier, self.authenticatedUserID, nil] options:nil store:self];
     [self hydrateMessagesForConversation:conversation];
 }
 
@@ -117,7 +117,7 @@
 
 - (void)sendMessagePart:(LYRMessagePartMock *)messagePart toConversation:(LYRConversationMock *)conversation fromUserID:(NSString *)userID
 {
-    LYRMessageMock *message4 = [LYRMessageMock newMessageWithParts:@[messagePart] senderID:userID];
+    LYRMessageMock *message4 = [LYRMessageMock newMessageWithParts:@[messagePart] senderID:userID store:self];
     [conversation sendMessage:message4 error:nil];
 }
 
@@ -281,7 +281,7 @@
 - (void)broadcastChanges
 {
     if (self.shouldBroadcastChanges && self.mockObjectChanges.count) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:LYRMockObjectsDidChangeNotification object:self.mockObjectChanges];
+        [[NSNotificationCenter defaultCenter] postNotificationName:LYRMockObjectsDidChangeNotification object:self userInfo:@{LYRClientObjectChangesUserInfoKey : self.mockObjectChanges}];
     }
     [self.mockObjectChanges removeAllObjects];
 }

@@ -24,23 +24,24 @@
 
 @property (nonatomic) NSOrderedSet *objects;
 @property (nonatomic) NSOrderedSet *oldObjects;
+@property (nonatomic) LYRMockContentStore *contentStore;
 
 @end
 
 @implementation LYRQueryControllerMock
 
-+ (instancetype)initWithQuery:(LYRQuery *)query
++ (instancetype)initWithQuery:(LYRQuery *)query store:(LYRMockContentStore *)store
 {
-    return [[self alloc] initWithQuery:query];
+    return [[self alloc] initWithQuery:query store:store];
 }
 
-- (id)initWithQuery:(LYRQuery *)query
+- (id)initWithQuery:(LYRQuery *)query store:(LYRMockContentStore *)store
 {
     self = [super init];
     if (self) {
         _query = query;
         _objects = [NSOrderedSet new];
-        _objects = [NSOrderedSet new];
+        _contentStore = store;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(mockObjectsDidChange:)
                                                      name:LYRMockObjectsDidChangeNotification
@@ -77,18 +78,23 @@
 
 - (BOOL)execute:(NSError **)error
 {
-    self.objects = [[LYRMockContentStore sharedStore] fetchObjectsWithClass:self.query.queryableClass predicate:self.query.predicate sortDescriptior:self.query.sortDescriptors];
+    self.objects = [self.contentStore fetchObjectsWithClass:self.query.queryableClass predicate:self.query.predicate sortDescriptior:self.query.sortDescriptors];
     return YES;
 }
 
 - (void)mockObjectsDidChange:(NSNotification *)notification
 {
+    if (notification.object != self.contentStore) {
+        return;
+    }
+
     self.oldObjects = [self.objects copy];
     [self execute:nil];
     if ([self.delegate respondsToSelector:@selector(queryControllerWillChangeContent:)]) {
         [self.delegate queryControllerWillChangeContent:self];
     }
-    for (NSDictionary *change in notification.object) {
+    NSArray *changes = notification.userInfo[LYRClientObjectChangesUserInfoKey];
+    for (NSDictionary *change in changes) {
         if ([[change valueForKey:LYRMockObjectChangeObjectKey] isKindOfClass:[LYRConversationMock class]]) {
             if ([(Class)self.query.queryableClass isEqual:[LYRConversation class]]) {
                 [self broadcastChange:change];
@@ -108,7 +114,6 @@
 {
     id objectMock = [mockObjectChange valueForKey:LYRMockObjectChangeObjectKey];
     LYRObjectChangeType changeType = [[mockObjectChange valueForKey:LYRMockObjectChangeChangeTypeKey] integerValue];
-    
     NSUInteger newIndex = [self.objects indexOfObject:objectMock];
     NSUInteger oldIndex = [self.oldObjects indexOfObject:objectMock];
     if ([self.delegate respondsToSelector:@selector(queryController:didChangeObject:atIndexPath:forChangeType:newIndexPath:)]) {
@@ -141,7 +146,7 @@
 
 - (NSDictionary *)indexPathsForObjectsWithIdentifiers:(NSSet *)objectIdentifiers;
 {
-    NSUInteger maxIndex = [[LYRMockContentStore sharedStore] allMessages].count - 1;
+    NSUInteger maxIndex = [self.contentStore allMessages].count - 1;
     return [[NSDictionary alloc] initWithObjects:@[[NSIndexPath indexPathForRow:0 inSection:maxIndex]] forKeys:@[self.layerClient.authenticatedUserID]];
 }
 

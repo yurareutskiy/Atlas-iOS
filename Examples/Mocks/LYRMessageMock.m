@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+
 #import "LYRMessageMock.h"
-#import "LYRMockContentStore.h"
 
 @implementation LYRActorMock
 @end
@@ -30,6 +30,7 @@
 @property (nonatomic, readwrite) BOOL isDeleted;
 @property (nonatomic, readwrite) BOOL isUnread;
 @property (nonatomic, readwrite) LYRActorMock *sender;
+@property (nonatomic) LYRMockContentStore *contentStore;
 
 @end
 
@@ -57,23 +58,25 @@
     return self;
 }
 
-+ (instancetype)newMessageWithParts:(NSArray *)messageParts senderID:(NSString *)senderID
++ (instancetype)newMessageWithParts:(NSArray *)messageParts senderID:(NSString *)senderID store:(LYRMockContentStore *)store
 {
     LYRMessageMock *mock = [[self alloc] initWithMessageParts:messageParts senderID:senderID];
     mock.identifier = [NSURL URLWithString:[[NSUUID UUID] UUIDString]];
     mock.isSent = NO;
     mock.isDeleted = NO;
     mock.isUnread = YES;
+    mock.contentStore = store;
     return mock;
 }
 
-+ (instancetype)newMessageWithParts:(NSArray *)messageParts senderName:(NSString *)senderName
++ (instancetype)newMessageWithParts:(NSArray *)messageParts senderName:(NSString *)senderName store:(LYRMockContentStore *)store
 {
     LYRMessageMock *mock = [[self alloc] initWithMessageParts:messageParts senderName:senderName];
     mock.identifier = [NSURL URLWithString:[[NSUUID UUID] UUIDString]];
     mock.isSent = NO;
     mock.isDeleted = NO;
     mock.isUnread = YES;
+    mock.contentStore = store;
     return mock;
 }
 
@@ -86,8 +89,8 @@
 - (BOOL)delete:(LYRDeletionMode)deletionMode error:(NSError **)error
 {
     self.isDeleted = YES;
-    [[LYRMockContentStore sharedStore] deleteMessage:self];
-    [[LYRMockContentStore sharedStore] broadcastChanges];
+    [self.contentStore deleteMessage:self];
+    [self.contentStore broadcastChanges];
     return YES;
 }
 

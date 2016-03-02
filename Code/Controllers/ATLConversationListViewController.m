@@ -95,6 +95,11 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
     return nil;
 }
 
+- (void)dealloc
+{
+    NSLog(@"Controller Dealoc!!");
+}
+
 - (void)setLayerClient:(LYRClient *)layerClient
 {
     if (self.hasAppeared) {
@@ -357,8 +362,9 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
                     break;
             }
         }
+        __block typeof(self) weakSelf = self;
         UITableViewRowAction *deleteAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:actionString handler:^(UITableViewRowAction *action, NSIndexPath *indexPath) {
-            [self deleteConversationAtIndexPath:indexPath withDeletionMode:deletionMode.integerValue];
+            [weakSelf deleteConversationAtIndexPath:indexPath withDeletionMode:deletionMode.integerValue];
         }];
         deleteAction.backgroundColor = actionColor;
         [actions addObject:deleteAction];
@@ -444,6 +450,7 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
                                   withRowAnimation:UITableViewRowAnimationAutomatic];
             break;
         case LYRQueryControllerChangeTypeDelete:
+            NSLog(@"Deleted Path: %@", indexPath);
             [self.tableView deleteRowsAtIndexPaths:@[indexPath]
                                   withRowAnimation:UITableViewRowAnimationAutomatic];
             break;

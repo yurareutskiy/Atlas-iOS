@@ -74,7 +74,6 @@ LYRMessagePartMock *ATLMessagePartWithLocation(CLLocation *location)
     self = [super init];
     if (self) {
         _layerClient = layerClient;
-        [[LYRMockContentStore sharedStore] setShouldBroadcastChanges:YES];
         
     }
     return self;
@@ -129,13 +128,13 @@ LYRMessagePartMock *ATLMessagePartWithLocation(CLLocation *location)
 {
     ProgrammaticAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:controller];
-    delegate.window.rootViewController = navigationController;
+    [delegate.window.rootViewController presentViewController:navigationController animated:NO completion:nil];
 }
 
 - (void)dismissPresentedViewController
 {
     ProgrammaticAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
-    delegate.window.rootViewController = nil;
+    [delegate.window.rootViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
 @end

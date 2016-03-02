@@ -19,7 +19,7 @@
 //
 #import <Foundation/Foundation.h>
 #import "LayerKitMock.h"
-#import "ATLMessagingUtilities.h"
+#import <Atlas/ATLMessagingUtilities.h>
 
 @interface LYRMessagePartMock : NSObject
 

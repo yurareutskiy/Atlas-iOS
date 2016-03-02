@@ -19,9 +19,9 @@
 //
 
 #import "ATLSampleConversationViewController.h"
-#import "LYRClientMock.h"
-#import "ATLParticipant.h"
 #import "ATLSampleParticipantTableViewController.h"
+#import "LYRClientMock.h"
+
 
 @interface ATLSampleConversationViewController () <ATLConversationViewControllerDataSource>
 

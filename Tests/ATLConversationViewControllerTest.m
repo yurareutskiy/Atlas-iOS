@@ -85,7 +85,7 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     [self setRootViewController:self.viewController];
     
     LYRMessagePart *part = [LYRMessagePart messagePartWithText:@"Hey Dude"];
-    LYRMessageMock *message = [LYRMessageMock newMessageWithParts:@[part] senderID:[ATLUserMock userWithMockUserName:ATLMockUserNameKlemen].participantIdentifier];
+    LYRMessageMock *message = [self.testInterface.layerClient newMessageWithParts:@[part] options:nil error:nil];
     [self.conversation sendMessage:message error:nil];
     [tester waitForViewWithAccessibilityLabel:@"Hey Dude"];
 }
