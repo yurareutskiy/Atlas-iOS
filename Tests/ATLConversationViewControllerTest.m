@@ -59,12 +59,11 @@ extern NSString *const ATLMessageInputToolbarSendButton;
 
 - (void)tearDown
 {
-    [tester waitForAnimationsToFinish];
     [self.testInterface dismissPresentedViewController];
-    self.viewController.conversationDataSource = nil;
-    self.viewController = nil;
+    [tester waitForAbsenceOfViewWithAccessibilityLabel:@"Messages"];
+    [tester waitForAnimationsToFinish];
     
-    [[LYRMockContentStore sharedStore] resetContentStore];
+    if (self.viewController) self.viewController = nil;
     self.testInterface = nil;
     
     [super tearDown];
@@ -239,13 +238,15 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     self.viewController.delegate = delegateMock;
         
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        LYRMessage *message;
-        [invocation getArgument:&message atIndex:3];
-        expect(message).to.beKindOf([LYRMessageMock class]);
+        void *tempMessage;
+        [invocation getArgument:&tempMessage atIndex:3];
+        LYRMessage *message = (__bridge LYRMessage *)tempMessage;
+        expect(message).to.beKindOf([LYRMessageMock class]);        expect(message).to.beKindOf([LYRMessageMock class]);
     }] conversationViewController:[OCMArg any] didSendMessage:[OCMArg any]];
     
     [tester enterText:@"Test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
@@ -262,13 +263,14 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     self.viewController.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        LYRMessage *message;
-        [invocation getArgument:&message atIndex:3];
-        expect(message).to.beKindOf([LYRMessageMock class]);
+        void *tempMessage;
+        [invocation getArgument:&tempMessage atIndex:3];
+        LYRMessage *message = (__bridge LYRMessage *)tempMessage;
         LYRMessagePart *messagePart = message.parts[0];
         expect(messagePart.data).toNot.beNil();
     }] conversationViewController:[OCMArg any] didSendMessage:[OCMArg any]];
@@ -288,12 +290,14 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     self.viewController.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        LYRMessage *message;
-        [invocation getArgument:&message atIndex:3];
+        void *tempMessage;
+        [invocation getArgument:&tempMessage atIndex:3];
+        LYRMessage *message = (__bridge LYRMessage *)tempMessage;
         expect(message).to.beKindOf([LYRMessageMock class]);
     }] conversationViewController:[OCMArg any] didSelectMessage:[OCMArg any]];
     
@@ -312,12 +316,14 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     self.viewController.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        LYRMessage *message;
-        [invocation getArgument:&message atIndex:3];
+        void *tempMessage;
+        [invocation getArgument:&tempMessage atIndex:3];
+        LYRMessage *message = (__bridge LYRMessage *)tempMessage;
         expect(message).to.beKindOf([LYRMessageMock class]);
         
         CGFloat height = 100;
@@ -343,14 +349,6 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     LYRMessageMock *newMessage = [self.testInterface.layerClient newMessageWithParts:@[part] options:nil error:nil];
     __block NSOrderedSet *messages = [[NSOrderedSet alloc] initWithObject:newMessage];
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
-        expect(controller).to.equal(self.viewController);
-        
-        NSArray *array;
-        [invocation getArgument:&array atIndex:3];
-        expect(array.count).to.equal(1);
-        
         [invocation setReturnValue:&messages];
     }] conversationViewController:[OCMArg any] messagesForMediaAttachments:[OCMArg any]];
     
@@ -371,23 +369,26 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     self.viewController.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        UICollectionViewCell <ATLMessagePresenting> *cell;
-        [invocation getArgument:&cell atIndex:3];
+        void *tempCell;
+        [invocation getArgument:&tempCell atIndex:3];
+        UICollectionViewCell <ATLMessagePresenting> *cell = (__bridge UICollectionViewCell <ATLMessagePresenting> *)tempCell;
         expect(cell).to.beKindOf([UICollectionViewCell class]);
         
-        LYRMessage *message;
-        [invocation getArgument:&message atIndex:4];
+        void *tempMessage;
+        [invocation getArgument:&tempMessage atIndex:4];
+        LYRMessage *message = (__bridge LYRMessage *)tempMessage;
         expect(message).to.beKindOf([LYRMessageMock class]);
         
     }] conversationViewController:[OCMArg any] configureCell:[OCMArg any] forMessage:[OCMArg any]];
     
     [self sendMessageWithText:@"This is a test"];
     [tester tapViewWithAccessibilityLabel:@"Message: This is a test"];
-    [delegateMock verify];
+    [delegateMock verifyWithDelay:1];
 }
 
 - (void)testToVerityControllerDisplaysCorrectDataFromTheDataSource
@@ -656,18 +657,20 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     self.viewController.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        LYRMessage *message;
-        [invocation getArgument:&message atIndex:3];
+        void *tempMessage;
+        [invocation getArgument:&tempMessage atIndex:3];
+        LYRMessage *message = (__bridge LYRMessage *)tempMessage;
         expect(message).to.beKindOf([LYRMessageMock class]);
         
         expect(^{[self.viewController reloadCellForMessage:message];}).toNot.raise(NSInternalInconsistencyException);
     }] conversationViewController:[OCMArg any] didSendMessage:[OCMArg any]];
     
-    [tester enterText:@"test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
+    [tester enterText:@"Test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
     [tester tapViewWithAccessibilityLabel:ATLMessageInputToolbarSendButton];
     [delegateMock verify];
 }
@@ -677,31 +680,33 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     [self setupConversationViewController];
     [self setRootViewController:self.viewController];
     
-    [tester enterText:@"test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
+    [tester enterText:@"Test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
     [tester tapViewWithAccessibilityLabel:ATLMessageInputToolbarSendButton];
     
-    [tester enterText:@"test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
+    [tester enterText:@"Test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
     [tester tapViewWithAccessibilityLabel:ATLMessageInputToolbarSendButton];
     
-    [tester enterText:@"test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
+    [tester enterText:@"Test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
     [tester tapViewWithAccessibilityLabel:ATLMessageInputToolbarSendButton];
     
     id delegateMock = OCMProtocolMock(@protocol(ATLConversationViewControllerDelegate));
     self.viewController.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        LYRMessage *message;
-        [invocation getArgument:&message atIndex:3];
+        void *tempMessage;
+        [invocation getArgument:&tempMessage atIndex:3];
+        LYRMessage *message = (__bridge LYRMessage *)tempMessage;
         expect(message).to.beKindOf([LYRMessageMock class]);
         
         expect(^{[self.viewController reloadCellsForMessagesSentByParticipantWithIdentifier:self.viewController.layerClient.authenticatedUserID];}).toNot.raise(NSInternalInconsistencyException);
     }] conversationViewController:[OCMArg any] didSendMessage:[OCMArg any]];
     
-    [tester enterText:@"test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
+    [tester enterText:@"Test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
     [tester tapViewWithAccessibilityLabel:ATLMessageInputToolbarSendButton];
     [delegateMock verify];
 }
@@ -715,12 +720,14 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     self.viewController.dataSource = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationListViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        LYRQuery *query;
-        [invocation getArgument:&query atIndex:3];
+        void *tempQuery;
+        [invocation getArgument:&tempQuery atIndex:3];
+        LYRQuery *query = (__bridge LYRQuery *)tempQuery;
         expect(query).toNot.beNil();
         
         [invocation setReturnValue:&query];
@@ -740,12 +747,14 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     
     __block NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"identifier" ascending:YES];
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLConversationListViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationViewController *controller = (__bridge ATLConversationViewController *)tempController;
         expect(controller).to.equal(self.viewController);
         
-        LYRQuery *query;
-        [invocation getArgument:&query atIndex:3];
+        void *tempQuery;
+        [invocation getArgument:&tempQuery atIndex:3];
+        LYRQuery *query = (__bridge LYRQuery *)tempQuery;
         expect(query).toNot.beNil();
         
         query.sortDescriptors = @[sortDescriptor];
@@ -768,18 +777,10 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     
     expect(^{
         [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-            ATLConversationListViewController *controller;
-            [invocation getArgument:&controller atIndex:2];
-            expect(controller).to.equal(self.viewController);
-            
-            LYRQuery *query;
-            [invocation getArgument:&query atIndex:3];
-            expect(query).toNot.beNil();
-            
+            // return nothing to force the exception.
         }] conversationViewController:[OCMArg any] willLoadWithQuery:[OCMArg any]];
-        
         self.viewController.conversation = [self.viewController.layerClient newConversationWithParticipants:[NSSet setWithObject:@"test"] options:nil error:nil];
-        [delegateMock verifyWithDelay:1];
+        [delegateMock verify];
     }).to.raise(NSInvalidArgumentException);
 }
 

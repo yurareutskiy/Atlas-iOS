@@ -57,9 +57,10 @@ NSString *const ATLParticipantTableViewAccessibilityIdentifier;
 
 - (void)tearDown
 {
+    [self.testInterface dismissPresentedViewController];
+    [tester waitForAnimationsToFinish];
     self.testInterface = nil;
     self.viewController = nil;
-    [[LYRMockContentStore sharedStore] resetContentStore];
     [super tearDown];
 }
 
@@ -167,8 +168,9 @@ NSString *const ATLParticipantTableViewAccessibilityIdentifier;
     
     NSString *searchText = @"S";
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        NSString *searchResult;
-        [invocation getArgument:&searchResult atIndex:3];
+        void *tempResult;
+        [invocation getArgument:&tempResult atIndex:3];
+        NSString *searchText = (__bridge NSString *)tempResult;
         expect(searchText).to.equal(searchText);
     }] participantTableViewController:[OCMArg any] didSearchWithString:[OCMArg any] completion:[OCMArg any]];
 

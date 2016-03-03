@@ -44,8 +44,8 @@ extern NSString *const ATLParticipantSectionHeaderViewAccessibilityLabel;
 
 - (void)tearDown
 {
-    UINavigationController *navigationController = (UINavigationController *)[[[[UIApplication sharedApplication] delegate] window] rootViewController];
-    [navigationController dismissViewControllerAnimated:YES completion:nil];
+    [self.testInterface dismissPresentedViewController];
+    [tester waitForAnimationsToFinish];
     self.userMock = nil;
     [super tearDown];
 }

@@ -59,9 +59,7 @@ extern NSString *const ATLAvatarImageViewAccessibilityLabel;
     [tester waitForAnimationsToFinish];
  
     if (self.viewController) self.viewController = nil;
-    
     [self resetAppearance];
-    self.testInterface = nil;
 }
 
 - (void)testToVerifyConversationListBaseUI
@@ -268,271 +266,293 @@ extern NSString *const ATLAvatarImageViewAccessibilityLabel;
     expect(^{ [self.viewController setAllowsEditing:YES]; }).to.raise(NSInternalInconsistencyException);
 }
 
-//#pragma mark - ATLConversationListViewControllerDataSource
-//
-//- (void)testToVerifyConversationListViewControllerDataSource
-//{
-//    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    self.viewController.displaysAvatarItem = YES;
-//    [self presentViewController:self.viewController];
-//    [tester waitForTimeInterval:0.5];
-//    
-//    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDataSource));
-//    self.viewController.dataSource = delegateMock;
-//    
-//    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
-//    
-//    LYRConversation *conversation;
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        LYRConversation *conversation;
-//        [invocation getArgument:&conversation atIndex:3];
-//        expect(conversation).to.equal(conversation);
-//        
-//        NSString *conversationTitle = mockUser1.fullName;
-//        [invocation setReturnValue:&conversationTitle];
-//    }] conversationListViewController:[OCMArg any] titleForConversation:[OCMArg any]];
-//    
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        LYRConversation *conversation;
-//        [invocation getArgument:&conversation atIndex:3];
-//        expect(conversation).to.equal(conversation);
-//    }] conversationListViewController:[OCMArg any] avatarItemForConversation:[OCMArg any]];
-//    
-//    conversation = (LYRConversation *)[self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
-//    [delegateMock verify];
-//}
-//
-//#pragma mark - ATLConversationListViewControllerDelegate
-//
-//- (void)testToVerifyDelegateIsNotifiedOfConversationSelection
-//{
-//    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    [self presentViewController:self.viewController];
-//    [tester waitForTimeInterval:0.5];
-//    
-//    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDelegate));
-//    self.viewController.delegate = delegateMock;
-//    
-//    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
-//    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
-//    
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        LYRConversation *conversation;
-//        [invocation getArgument:&conversation atIndex:3];
-//        expect(conversation).to.equal(conversation1);
-//    }] conversationListViewController:[OCMArg any] didSelectConversation:[OCMArg any]];
-//    
-//    [tester tapViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1]];
-//    [delegateMock verify];
-//}
-//
-//- (void)testToVerifyDelegateIsNotifiedOfGlobalConversationDeletion
-//{
-//    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    self.viewController.allowsEditing = YES;
-//    [self presentViewController:self.viewController];
-//    [tester waitForTimeInterval:0.5];
-//    
-//    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDelegate));
-//    self.viewController.delegate = delegateMock;
-//    
-//    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
-//    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
-//    
-//    LYRDeletionMode deletionMode = LYRDeletionModeAllParticipants;
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        LYRConversation *conversation;
-//        [invocation getArgument:&conversation atIndex:3];
-//        expect(conversation).to.equal(conversation1);
-//        
-//        LYRDeletionMode mode;
-//        [invocation getArgument:&mode atIndex:4];
-//        expect(mode).to.equal(deletionMode);
-//    }] conversationListViewController:[OCMArg any] didDeleteConversation:[OCMArg any] deletionMode:deletionMode];
-//    
-//    [tester swipeViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1] inDirection:KIFSwipeDirectionLeft];
-//    [self deleteConversation:conversation1 deletionMode:deletionMode];
-//    [delegateMock verify];
-//}
-//
-//- (void)testToVerifyDelegateIsNotifiedOfLocalConversationDeletion
-//{
-//    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    self.viewController.allowsEditing = YES;
-//    [self presentViewController:self.viewController];
-//    [tester waitForTimeInterval:0.5];
-//    
-//    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDelegate));
-//    self.viewController.delegate = delegateMock;
-//    
-//    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
-//    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
-//    
-//    LYRDeletionMode deletionMode = LYRDeletionModeMyDevices;
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        LYRConversation *conversation;
-//        [invocation getArgument:&conversation atIndex:3];
-//        expect(conversation).to.equal(conversation1);
-//        
-//        LYRDeletionMode mode;
-//        [invocation getArgument:&mode atIndex:4];
-//        expect(mode).to.equal(deletionMode);
-//    }] conversationListViewController:[OCMArg any] didDeleteConversation:[OCMArg any] deletionMode:deletionMode];
-//    
-//    [tester swipeViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1] inDirection:KIFSwipeDirectionLeft];
-//    [self deleteConversation:conversation1 deletionMode:deletionMode];
-//    [delegateMock verify];
-//}
-//
-//- (void)testToVerifyDelegateIsNotifiedOfSearch
-//{
-//    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    self.viewController.allowsEditing = YES;
-//    [self presentViewController:self.viewController];
-//    [tester waitForTimeInterval:0.5];
-//    
-//    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDelegate));
-//    self.viewController.delegate = delegateMock;
-//    
-//    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
-//    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
-//    
-//    __block NSString *searchText = @"T";
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        NSString *searchText;
-//        [invocation getArgument:&searchText atIndex:3];
-//        expect(searchText).to.equal(searchText);
-//    }] conversationListViewController:[OCMArg any] didSearchForText:searchText completion:[OCMArg any]];
-//    
-//    [tester swipeViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1]  inDirection:KIFSwipeDirectionDown];
-//    [tester tapViewWithAccessibilityLabel:@"Search Bar"];
-//    [tester enterText:searchText intoViewWithAccessibilityLabel:@"Search Bar"];
-//    [delegateMock verify];
-//}
-//
-//- (void)testToVerifyCustomDeletionColorAndText
-//{
-//    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    self.viewController.allowsEditing = YES;
-//    [self presentViewController:self.viewController];
-//    
-//    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
-//    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
-//    [tester waitForAnimationsToFinish];
-//    
-//    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDataSource));
-//    self.viewController.dataSource = delegateMock;
-//    
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        NSString *deletionTitle = @"Test";
-//        [invocation setReturnValue:&deletionTitle];
-//    }] conversationListViewController:[OCMArg any] textForButtonWithDeletionMode:LYRDeletionModeAllParticipants];
-//    
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        UIColor *green = [UIColor greenColor];
-//        [invocation setReturnValue:&green];
-//    }] conversationListViewController:[OCMArg any] colorForButtonWithDeletionMode:LYRDeletionModeAllParticipants];
-//    
-//    [tester swipeViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1]  inDirection:KIFSwipeDirectionLeft];
-//    [delegateMock verify];
-//    
-//    UIView *deleteButton = [tester waitForViewWithAccessibilityLabel:@"Test"];
-//    expect(deleteButton.backgroundColor).to.equal([UIColor greenColor]);
-//}
-//
-//- (void)testToVerifyDefaultQueryConfigurationDataSourceMethod
-//{
-//    self.viewController = [ATLConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    self.viewController.allowsEditing = YES;
-//    
-//    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDataSource));
-//    self.viewController.dataSource = delegateMock;
-//    
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        LYRQuery *query;
-//        [invocation getArgument:&query atIndex:3];
-//        expect(query).toNot.beNil();
-//        
-//        [invocation setReturnValue:&query];
-//    }] conversationListViewController:[OCMArg any] willLoadWithQuery:[OCMArg any]];
-//    
-//    [self presentViewController:self.viewController];
-//    [delegateMock verifyWithDelay:1];
-//}
-//
-//- (void)testToVerifyQueryConfigurationTakesEffect
-//{
-//    self.viewController = [ATLConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    self.viewController.allowsEditing = YES;
-//    
-//    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDataSource));
-//    self.viewController.dataSource = delegateMock;
-//    
-//    __block NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"identifier" ascending:YES];
-//    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-//        ATLConversationListViewController *controller;
-//        [invocation getArgument:&controller atIndex:2];
-//        expect(controller).to.equal(self.viewController);
-//        
-//        LYRQuery *query;
-//        [invocation getArgument:&query atIndex:3];
-//        expect(query).toNot.beNil();
-//        
-//        query.sortDescriptors = @[sortDescriptor];
-//        [invocation setReturnValue:&query];
-//    }] conversationListViewController:[OCMArg any] willLoadWithQuery:[OCMArg any]];
-//    
-//    [self presentViewController:self.viewController];
-//    [delegateMock verifyWithDelay:2];
-//    
-//    expect(self.viewController.queryController.query.sortDescriptors).will.contain(sortDescriptor);
-//}
-//
-//- (void)testToVerifyAvatarImageURLLoad
-//{
-//    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
-//    self.viewController.displaysAvatarItem = YES;
-//    [self presentViewController:self.viewController];
-//    
-//    ATLAvatarImageView *imageView = (ATLAvatarImageView *)[tester waitForViewWithAccessibilityLabel:ATLAvatarImageViewAccessibilityLabel];
-//    expect(imageView.image).will.beTruthy;
-//}
+#pragma mark - ATLConversationListViewControllerDataSource
+
+- (void)testToVerifyConversationListViewControllerDataSource
+{
+    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    self.viewController.displaysAvatarItem = YES;
+    [self presentViewController:self.viewController];
+    [tester waitForTimeInterval:0.5];
+    
+    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDataSource));
+    self.viewController.dataSource = delegateMock;
+    
+    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
+    
+    LYRConversation *conversation;
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        void *tempConversation;
+        [invocation getArgument:&tempConversation atIndex:3];
+        LYRConversation *conversation = (__bridge LYRConversation *)tempConversation;
+        expect(conversation).to.equal(conversation);
+        
+        NSString *conversationTitle = mockUser1.fullName;
+        [invocation setReturnValue:&conversationTitle];
+    }] conversationListViewController:[OCMArg any] titleForConversation:[OCMArg any]];
+    
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        void *tempConversation;
+        [invocation getArgument:&tempConversation atIndex:3];
+        LYRConversation *conversation = (__bridge LYRConversation *)tempConversation;
+        expect(conversation).to.equal(conversation);
+    }] conversationListViewController:[OCMArg any] avatarItemForConversation:[OCMArg any]];
+    
+    conversation = (LYRConversation *)[self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
+    [delegateMock verify];
+}
+
+#pragma mark - ATLConversationListViewControllerDelegate
+
+- (void)testToVerifyDelegateIsNotifiedOfConversationSelection
+{
+    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    [self presentViewController:self.viewController];
+    [tester waitForTimeInterval:0.5];
+    
+    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDelegate));
+    self.viewController.delegate = delegateMock;
+    
+    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
+    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
+    
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        void *tempConversation;
+        [invocation getArgument:&tempConversation atIndex:3];
+        LYRConversation *conversation = (__bridge LYRConversation *)tempConversation;
+        expect(conversation).to.equal(conversation);
+    }] conversationListViewController:[OCMArg any] didSelectConversation:[OCMArg any]];
+    
+    [tester tapViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1]];
+    [delegateMock verify];
+}
+
+- (void)testToVerifyDelegateIsNotifiedOfGlobalConversationDeletion
+{
+    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    self.viewController.allowsEditing = YES;
+    [self presentViewController:self.viewController];
+    [tester waitForTimeInterval:0.5];
+    
+    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDelegate));
+    self.viewController.delegate = delegateMock;
+    
+    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
+    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
+    
+    LYRDeletionMode deletionMode = LYRDeletionModeAllParticipants;
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        void *tempConversation;
+        [invocation getArgument:&tempConversation atIndex:3];
+        LYRConversation *conversation = (__bridge LYRConversation *)tempConversation;
+        expect(conversation).to.equal(conversation);
+        
+        void *tempMode;
+        [invocation getArgument:&tempMode atIndex:4];
+        LYRDeletionMode mode = (LYRDeletionMode)tempMode;
+        expect(mode).to.equal(deletionMode);
+    }] conversationListViewController:[OCMArg any] didDeleteConversation:[OCMArg any] deletionMode:deletionMode];
+    
+    [tester swipeViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1] inDirection:KIFSwipeDirectionLeft];
+    [self deleteConversation:conversation1 deletionMode:deletionMode];
+    [delegateMock verify];
+}
+
+- (void)testToVerifyDelegateIsNotifiedOfLocalConversationDeletion
+{
+    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    self.viewController.allowsEditing = YES;
+    [self presentViewController:self.viewController];
+    [tester waitForTimeInterval:0.5];
+    
+    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDelegate));
+    self.viewController.delegate = delegateMock;
+    
+    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
+    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
+    
+    LYRDeletionMode deletionMode = LYRDeletionModeMyDevices;
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        void *tempConversation;
+        [invocation getArgument:&tempConversation atIndex:3];
+        LYRConversation *conversation = (__bridge LYRConversation *)tempConversation;
+        expect(conversation).to.equal(conversation);
+        
+        void *tempMode;
+        [invocation getArgument:&tempMode atIndex:4];
+        LYRDeletionMode mode = (LYRDeletionMode)tempMode;
+        expect(mode).to.equal(deletionMode);
+    }] conversationListViewController:[OCMArg any] didDeleteConversation:[OCMArg any] deletionMode:deletionMode];
+    
+    [tester swipeViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1] inDirection:KIFSwipeDirectionLeft];
+    [self deleteConversation:conversation1 deletionMode:deletionMode];
+    [delegateMock verify];
+}
+
+- (void)testToVerifyDelegateIsNotifiedOfSearch
+{
+    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    self.viewController.allowsEditing = YES;
+    [self presentViewController:self.viewController];
+    [tester waitForTimeInterval:0.5];
+    
+    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDelegate));
+    self.viewController.delegate = delegateMock;
+    
+    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
+    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
+    
+    __block NSString *searchText = @"T";
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+
+        void *tempText;
+        [invocation getArgument:&tempText atIndex:3];
+        NSString *searchText = (__bridge NSString *)tempText;
+        expect(searchText).to.equal(searchText);
+    }] conversationListViewController:[OCMArg any] didSearchForText:searchText completion:[OCMArg any]];
+    
+    [tester swipeViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1]  inDirection:KIFSwipeDirectionDown];
+    [tester tapViewWithAccessibilityLabel:@"Search Bar"];
+    [tester enterText:searchText intoViewWithAccessibilityLabel:@"Search Bar"];
+    [delegateMock verify];
+}
+
+- (void)testToVerifyCustomDeletionColorAndText
+{
+    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    self.viewController.allowsEditing = YES;
+    [self presentViewController:self.viewController];
+    
+    ATLUserMock *mockUser1 = [ATLUserMock userWithMockUserName:ATLMockUserNameKlemen];
+    LYRConversationMock *conversation1 = [self newConversationWithMockUser:mockUser1 lastMessageText:@"Test Message"];
+    [tester waitForAnimationsToFinish];
+    
+    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDataSource));
+    self.viewController.dataSource = delegateMock;
+    
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        NSString *deletionTitle = @"Test";
+        [invocation setReturnValue:&deletionTitle];
+    }] conversationListViewController:[OCMArg any] textForButtonWithDeletionMode:LYRDeletionModeAllParticipants];
+    
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        UIColor *green = [UIColor greenColor];
+        [invocation setReturnValue:&green];
+    }] conversationListViewController:[OCMArg any] colorForButtonWithDeletionMode:LYRDeletionModeAllParticipants];
+    
+    [tester swipeViewWithAccessibilityLabel:[self.testInterface conversationLabelForConversation:conversation1]  inDirection:KIFSwipeDirectionLeft];
+    [delegateMock verify];
+    
+    UIView *deleteButton = [tester waitForViewWithAccessibilityLabel:@"Test"];
+    expect(deleteButton.backgroundColor).to.equal([UIColor greenColor]);
+}
+
+- (void)testToVerifyDefaultQueryConfigurationDataSourceMethod
+{
+    self.viewController = [ATLConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    self.viewController.allowsEditing = YES;
+    
+    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDataSource));
+    self.viewController.dataSource = delegateMock;
+    
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        void *tempQuery;
+        [invocation getArgument:&tempQuery atIndex:3];
+        LYRQuery *query = (__bridge LYRQuery *)tempQuery;
+        expect(query).toNot.beNil();
+        
+        [invocation setReturnValue:&query];
+    }] conversationListViewController:[OCMArg any] willLoadWithQuery:[OCMArg any]];
+    
+    [self presentViewController:self.viewController];
+    [delegateMock verifyWithDelay:1];
+}
+
+- (void)testToVerifyQueryConfigurationTakesEffect
+{
+    self.viewController = [ATLConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    self.viewController.allowsEditing = YES;
+    
+    id delegateMock = OCMProtocolMock(@protocol(ATLConversationListViewControllerDataSource));
+    self.viewController.dataSource = delegateMock;
+    
+    __block NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"identifier" ascending:YES];
+    [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLConversationListViewController *controller = (__bridge ATLConversationListViewController *)tempController;
+        expect(controller).to.equal(self.viewController);
+        
+        void *tempQuery;
+        [invocation getArgument:&tempQuery atIndex:3];
+        LYRQuery *query = (__bridge LYRQuery *)tempQuery;
+        expect(query).toNot.beNil();
+        
+        query.sortDescriptors = @[sortDescriptor];
+        [invocation setReturnValue:&query];
+    }] conversationListViewController:[OCMArg any] willLoadWithQuery:[OCMArg any]];
+    
+    [self presentViewController:self.viewController];
+    [delegateMock verifyWithDelay:2];
+    
+    expect(self.viewController.queryController.query.sortDescriptors).will.contain(sortDescriptor);
+}
+
+- (void)testToVerifyAvatarImageURLLoad
+{
+    self.viewController = [ATLSampleConversationListViewController conversationListViewControllerWithLayerClient:(LYRClient *)self.testInterface.layerClient];
+    self.viewController.displaysAvatarItem = YES;
+    [self presentViewController:self.viewController];
+    
+    [self newConversationWithMockUser:[ATLUserMock userWithMockUserName:ATLMockUserNameAmar] lastMessageText:@"Hi"];
+    
+    ATLAvatarImageView *imageView = (ATLAvatarImageView *)[tester waitForViewWithAccessibilityLabel:ATLAvatarImageViewAccessibilityLabel];
+    expect(imageView.image).will.beTruthy;
+}
 
 - (LYRConversationMock *)newConversationWithMockUser:(ATLUserMock *)mockUser lastMessageText:(NSString *)lastMessageText
 {

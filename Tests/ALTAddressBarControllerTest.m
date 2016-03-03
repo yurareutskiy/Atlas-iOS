@@ -41,6 +41,8 @@ extern NSString *const ATLAddContactsButtonAccessibilityLabel;
 
 - (void)tearDown
 {
+    [self.testInterface dismissPresentedViewController];
+    [tester waitForAnimationsToFinish];
     [super tearDown];
 }
 
@@ -62,12 +64,13 @@ extern NSString *const ATLAddContactsButtonAccessibilityLabel;
     addressBar.delegate = delegateMock;
 
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLAddressBarViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLAddressBarViewController *controller = (__bridge ATLAddressBarViewController *)tempController;
         expect(controller).to.beKindOf([ATLAddressBarViewController class]);
     }] addressBarViewControllerDidBeginSearching:[OCMArg any]];
     
-    [tester enterText:@"test" intoViewWithAccessibilityLabel:ATLAddressBarTextViewAccesssibilityLabel];
+    [tester enterText:@"Test" intoViewWithAccessibilityLabel:ATLAddressBarTextViewAccesssibilityLabel];
     [delegateMock verify];
 }
 
@@ -80,10 +83,14 @@ extern NSString *const ATLAddContactsButtonAccessibilityLabel;
     addressBar.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLAddressBarViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLAddressBarViewController *controller = (__bridge ATLAddressBarViewController *)tempController;
         expect(controller).to.beKindOf([ATLAddressBarViewController class]);
     }] addressBarViewController:[OCMArg any] didSelectParticipant:[OCMArg any]];
+    
+    [addressBar selectParticipant:[ATLUserMock userWithMockUserName:ATLMockUserNameAmar]];
+    [delegateMock verify];
 }
 
 //- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController didRemoveParticipant:(id<ATLParticipant>)participant;
@@ -95,10 +102,15 @@ extern NSString *const ATLAddContactsButtonAccessibilityLabel;
     addressBar.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLAddressBarViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLAddressBarViewController *controller = (__bridge ATLAddressBarViewController *)tempController;
         expect(controller).to.beKindOf([ATLAddressBarViewController class]);
     }] addressBarViewController:[OCMArg any] didRemoveParticipant:[OCMArg any]];
+    
+    [addressBar selectParticipant:[ATLUserMock userWithMockUserName:ATLMockUserNameAmar]];
+    [addressBar setSelectedParticipants:[NSOrderedSet new]];
+    [delegateMock verify];
 }
 
 //- (void)addressBarViewControllerDidEndSearching:(ATLAddressBarViewController *)addressBarViewController;
@@ -110,8 +122,9 @@ extern NSString *const ATLAddContactsButtonAccessibilityLabel;
     addressBar.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLAddressBarViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLAddressBarViewController *controller = (__bridge ATLAddressBarViewController *)tempController;
         expect(controller).to.beKindOf([ATLAddressBarViewController class]);
     }] addressBarViewControllerDidEndSearching:[OCMArg any]];
     
@@ -130,8 +143,9 @@ extern NSString *const ATLAddContactsButtonAccessibilityLabel;
     addressBar.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLAddressBarViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLAddressBarViewController *controller = (__bridge ATLAddressBarViewController *)tempController;
         expect(controller).to.beKindOf([ATLAddressBarViewController class]);
     }] addressBarViewController:[OCMArg any] didTapAddContactsButton:[OCMArg any]];
     
@@ -148,8 +162,9 @@ extern NSString *const ATLAddContactsButtonAccessibilityLabel;
     addressBar.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLAddressBarViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLAddressBarViewController *controller = (__bridge ATLAddressBarViewController *)tempController;
         expect(controller).to.beKindOf([ATLAddressBarViewController class]);
     }] addressBarViewControllerDidSelectWhileDisabled:[OCMArg any]];
     
@@ -167,8 +182,9 @@ extern NSString *const ATLAddContactsButtonAccessibilityLabel;
     addressBar.delegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLAddressBarViewController *controller;
-        [invocation getArgument:&controller atIndex:2];
+        void *tempController;
+        [invocation getArgument:&tempController atIndex:2];
+        ATLAddressBarViewController *controller = (__bridge ATLAddressBarViewController *)tempController;
         expect(controller).to.beKindOf([ATLAddressBarViewController class]);
     }] addressBarViewController:[OCMArg any] searchForParticipantsMatchingText:[OCMArg any] completion:[OCMArg any]];
 

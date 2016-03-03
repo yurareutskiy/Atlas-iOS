@@ -53,8 +53,11 @@ NSString *ATLLastMessageText = @"ATLLastMessageText";
 
 - (void)tearDown
 {
+    [self.testInterface dismissPresentedViewController];
+    [tester waitForAbsenceOfViewWithAccessibilityLabel:@"Messages"];
+    [tester waitForAnimationsToFinish];
     [self resetAppearance];
-    [self.conversation delete:LYRDeletionModeAllParticipants error:nil];
+
     [super tearDown];
 }
 

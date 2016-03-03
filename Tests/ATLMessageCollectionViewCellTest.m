@@ -51,10 +51,10 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
 
 - (void)tearDown
 {
+    [self.testInterface dismissPresentedViewController];
     [tester waitForAnimationsToFinish];
     self.conversation = nil;
     self.controller = nil;
-    [[LYRMockContentStore sharedStore] resetContentStore];
     [super tearDown];
 }
 
@@ -104,6 +104,7 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     [cell presentMessage:(LYRMessage *)message];
     expect(cell.bubbleView.bubbleImageView.image).willNot.beNil;
     expect(cell.bubbleView.bubbleViewLabel.text).to.beNil;
+    [tester waitForAnimationsToFinish];
 }
 
 - (void)testToVerifyMessageBubbleViewWithLocation

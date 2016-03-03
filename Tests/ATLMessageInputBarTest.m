@@ -63,7 +63,8 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
 
 - (void)tearDown
 {
-    [[LYRMockContentStore sharedStore] resetContentStore];
+    [self.testInterface dismissPresentedViewController];
+    [tester waitForAnimationsToFinish];
     self.testInterface = nil;
     
     [super tearDown];
@@ -102,7 +103,7 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
     toolBar.textInputView.text = @"heyhey";
     [toolBar layoutSubviews];
     CGFloat width = [toolBar.rightAccessoryButtonTitle boundingRectWithSize:CGSizeMake(MAXFLOAT, MAXFLOAT) options:0 attributes:@{NSFontAttributeName: toolBar.rightAccessoryButtonFont} context:nil].size.width + ATLRightAccessoryButtonPadding;
-    expect(toolBar.rightAccessoryButton.frame.size.width).to.equal(width);
+    expect((int)toolBar.rightAccessoryButton.frame.size.width).to.equal((int)width);
 }
 
 - (void)testToVerifyRightAccessoryButtonDelegateFunctionality
@@ -113,8 +114,9 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
     toolBar.inputToolBarDelegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLMessageInputToolbar *toolbar;
-        [invocation getArgument:&toolbar atIndex:2];
+        void *tempToolbar;
+        [invocation getArgument:&tempToolbar atIndex:2];
+        ATLMessageInputToolbar *toolBar = (__bridge ATLMessageInputToolbar *)tempToolbar;
         expect(toolBar).to.beKindOf([ATLMessageInputToolbar class]);
     }] messageInputToolbar:[OCMArg any] didTapLeftAccessoryButton:[OCMArg any]];
 
@@ -130,8 +132,9 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
     toolBar.inputToolBarDelegate = delegateMock;
     
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLMessageInputToolbar *toolbar;
-        [invocation getArgument:&toolbar atIndex:2];
+        void *tempToolbar;
+        [invocation getArgument:&tempToolbar atIndex:2];
+        ATLMessageInputToolbar *toolBar = (__bridge ATLMessageInputToolbar *)tempToolbar;
         expect(toolBar).to.beKindOf([ATLMessageInputToolbar class]);
     }] messageInputToolbar:[OCMArg any] didTapRightAccessoryButton:[OCMArg any]];
     
@@ -148,8 +151,11 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
     
     NSString *testText = @"This is a test";
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLMessageInputToolbar *toolbar;
-        [invocation getArgument:&toolbar atIndex:2];
+        void *tempToolbar;
+        [invocation getArgument:&tempToolbar atIndex:2];
+        ATLMessageInputToolbar *toolbar = (__bridge ATLMessageInputToolbar *)tempToolbar;
+        expect(toolBar).to.beKindOf([ATLMessageInputToolbar class]);
+        
         NSArray *attachments = toolbar.mediaAttachments;
         expect(attachments.count).to.equal(1);
         ATLMediaAttachment *attachment = [attachments objectAtIndex:0];
@@ -198,11 +204,12 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
     
     __block NSString *testText = @"This is a test";
     [[[delegateMock expect] andDo:^(NSInvocation *invocation) {
-        ATLMessageInputToolbar *newToolbar;
-        [invocation getArgument:&newToolbar atIndex:2];
-        expect(newToolbar).to.equal(toolBar);
+        void *tempToolbar;
+        [invocation getArgument:&tempToolbar atIndex:2];
+        ATLMessageInputToolbar *toolbar = (__bridge ATLMessageInputToolbar *)tempToolbar;
+        expect(toolBar).to.beKindOf([ATLMessageInputToolbar class]);
         
-        NSArray *parts = newToolbar.mediaAttachments;
+        NSArray *parts = toolbar.mediaAttachments;
         expect(parts.count).to.equal(2);
         expect([parts objectAtIndex:0]).to.beKindOf([ATLMediaAttachment class]);
         expect([parts objectAtIndex:1]).to.beKindOf([ATLMediaAttachment class]);
@@ -301,7 +308,7 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
     ATLMessageInputToolbar *toolBar = (ATLMessageInputToolbar *)[tester waitForViewWithAccessibilityLabel:@"Message Input Toolbar"];
     toolBar.displaysRightAccessoryImage = NO;
     
-    [tester enterText:@"test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
+    [tester enterText:@"Test" intoViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
     expect(toolBar.rightAccessoryButton.enabled).to.beTruthy();
     
     [tester clearTextFromViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
@@ -341,7 +348,7 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
     self.viewController.conversation = self.conversation;
     
     [self.testInterface presentViewController:self.viewController];
-    [tester waitForTimeInterval:1];
+    [tester waitForAnimationsToFinish];
 }
 
 @end

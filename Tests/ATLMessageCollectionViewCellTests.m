@@ -29,6 +29,7 @@
 #import <OCMock/OCMock.h>
 #import "LYRMessageMock.h"
 #import "LYRMessagePartMock.h"
+#import "LYRCountdownLatch.h"
 
 @interface ATLMessageCollectionViewCellTests : XCTestCase
 
@@ -68,23 +69,21 @@
     LYRMessageMock *messageMock1 = [LYRMessageMock newMessageWithParts:@[ part1, part2 ] senderID:[ATLUserMock userWithMockUserName:ATLMockUserNameKlemen].participantIdentifier store:nil];
     LYRMessageMock *messageMock2 = [LYRMessageMock newMessageWithParts:@[ [LYRMessagePartMock messagePartWithMIMEType:@"text/plain" data:[@"test" dataUsingEncoding:NSUTF8StringEncoding]] ]  senderID:[ATLUserMock userWithMockUserName:ATLMockUserNameKlemen].participantIdentifier store:nil];
     
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(2);
-
+    LYRCountDownLatch *latch = [LYRCountDownLatch latchWithCount:1 timeoutInterval:10];
     id partialmockedPart = OCMPartialMock(part1);
     [[partialmockedPart expect] andForwardToRealObject];
     [[partialmockedPart expect] andForwardToRealObject];
     [[partialmockedPart expect] andForwardToRealObject];
     [[partialmockedPart expect] andDo:^(NSInvocation *invocation) {
-        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        [latch waitTilCount:0];
         [invocation setReturnValue:(__bridge void *)(data)];
     }];
     [cell presentMessage:(LYRMessage *)messageMock1];
     [cell prepareForReuse];
     [cell presentMessage:(LYRMessage *)messageMock2];
 
-    dispatch_semaphore_signal(semaphore);
-    
-   [partialMock verifyWithDelay:2.0f];
+    [latch decrementCount];
+    [partialMock verify];
 }
 
 - (void)testThatAsynchronousImageLoadingDoesNotUpdateReusedCells
@@ -107,23 +106,21 @@
     LYRMessageMock *messageMock1 = [LYRMessageMock newMessageWithParts:@[ part1, part2 ] senderID:[ATLUserMock userWithMockUserName:ATLMockUserNameKlemen].participantIdentifier store:nil];
     LYRMessageMock *messageMock2 = [LYRMessageMock newMessageWithParts:@[ [LYRMessagePartMock messagePartWithMIMEType:@"text/plain" data:[@"test" dataUsingEncoding:NSUTF8StringEncoding]] ]  senderID:[ATLUserMock userWithMockUserName:ATLMockUserNameKlemen].participantIdentifier store:nil];
     
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(2);
-    
+    LYRCountDownLatch *latch = [LYRCountDownLatch latchWithCount:1 timeoutInterval:10];
     id partialmockedPart = OCMPartialMock(part1);
     [[partialmockedPart expect] andForwardToRealObject];
     [[partialmockedPart expect] andForwardToRealObject];
     [[partialmockedPart expect] andForwardToRealObject];
     [[partialmockedPart expect] andDo:^(NSInvocation *invocation) {
-        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        [latch waitTilCount:0];
         [invocation setReturnValue:(__bridge void *)(data)];
     }];
     [cell presentMessage:(LYRMessage *)messageMock1];
     [cell prepareForReuse];
     [cell presentMessage:(LYRMessage *)messageMock2];
     
-    dispatch_semaphore_signal(semaphore);
-    
-    [partialMock verifyWithDelay:2.0f];
+    [latch decrementCount];
+    [partialMock verify];
 }
 
 @end
