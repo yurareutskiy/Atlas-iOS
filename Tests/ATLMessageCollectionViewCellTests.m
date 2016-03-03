@@ -52,7 +52,7 @@
     ATLMessageCollectionViewCell *cell = [[ATLMessageCollectionViewCell alloc] initWithFrame:CGRectZero];
     ATLMessageBubbleView *bubbleView = cell.bubbleView;
     id partialMock = OCMPartialMock(bubbleView);
-    [[[partialMock reject] ignoringNonObjectArgs] updateWithImage:[OCMArg any] width:1337];
+    [[[partialMock reject] ignoringNonObjectArgs] updateWithImage:[OCMArg any] width:215];
     
     NSBundle *parentBundle = [NSBundle bundleForClass:[self class]];
     NSURL *url = [parentBundle URLForResource:@"boatgif" withExtension:@"gif"];
@@ -84,6 +84,9 @@
 
     [latch decrementCount];
     [partialMock verify];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    cell = nil;
+    cell.bubbleView = nil;
 }
 
 - (void)testThatAsynchronousImageLoadingDoesNotUpdateReusedCells
@@ -91,7 +94,7 @@
     ATLMessageCollectionViewCell *cell = [[ATLMessageCollectionViewCell alloc] initWithFrame:CGRectZero];
     ATLMessageBubbleView *bubbleView = cell.bubbleView;
     id partialMock = OCMPartialMock(bubbleView);
-    [[[partialMock reject] ignoringNonObjectArgs] updateWithImage:[OCMArg any] width:1337];
+    [[[partialMock reject] ignoringNonObjectArgs] updateWithImage:[OCMArg any] width:215];
     
     UIImage *image = ATLTestAttachmentMakeImageWithSize(CGSizeMake(800, 800));
     NSData *data = UIImageJPEGRepresentation(image, 1.0f);
@@ -121,6 +124,9 @@
     
     [latch decrementCount];
     [partialMock verify];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    cell = nil;
+    cell.bubbleView = nil;
 }
 
 @end

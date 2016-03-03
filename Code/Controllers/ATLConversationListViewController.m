@@ -95,11 +95,6 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
     return nil;
 }
 
-- (void)dealloc
-{
-    NSLog(@"Controller Dealoc!!");
-}
-
 - (void)setLayerClient:(LYRClient *)layerClient
 {
     if (self.hasAppeared) {
@@ -450,7 +445,6 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
                                   withRowAnimation:UITableViewRowAnimationAutomatic];
             break;
         case LYRQueryControllerChangeTypeDelete:
-            NSLog(@"Deleted Path: %@", indexPath);
             [self.tableView deleteRowsAtIndexPaths:@[indexPath]
                                   withRowAnimation:UITableViewRowAnimationAutomatic];
             break;

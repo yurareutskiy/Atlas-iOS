@@ -64,7 +64,6 @@ CGFloat const ATLRightAccessoryButtonPadding = 5.3f;
 - (void)tearDown
 {
     [self.testInterface dismissPresentedViewController];
-    [tester waitForAnimationsToFinish];
     self.testInterface = nil;
     
     [super tearDown];

@@ -63,6 +63,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLMessageCollectionViewCell *cell = [ATLMessageCollectionViewCell new];
     [cell presentMessage:(LYRMessage *)self.message];
     expect(cell.bubbleViewColor).toNot.beNil;
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyAvatarImageViewViewIsNotNil
@@ -70,6 +72,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLMessageCollectionViewCell *cell = [ATLMessageCollectionViewCell new];
     [cell presentMessage:(LYRMessage *)self.message];
     expect(cell.avatarImageView).toNot.beNil;
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyMessageBubbleViewWithText
@@ -82,6 +86,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     [cell presentMessage:(LYRMessage *)message];
     expect(cell.bubbleView.bubbleViewLabel.text).to.equal(test);
     expect(cell.bubbleView.bubbleImageView.image).to.beNil;
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyMessageBubbleViewWithImage
@@ -93,6 +99,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     [cell presentMessage:(LYRMessage *)message];
     expect(cell.bubbleView.bubbleImageView.image).willNot.beNil;
     expect(cell.bubbleView.bubbleViewLabel.text).to.beNil;
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyMessageBubbleViewWithGIF
@@ -105,6 +113,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     expect(cell.bubbleView.bubbleImageView.image).willNot.beNil;
     expect(cell.bubbleView.bubbleViewLabel.text).to.beNil;
     [tester waitForAnimationsToFinish];
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyMessageBubbleViewWithLocation
@@ -118,6 +128,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     [cell presentMessage:(LYRMessage *)message];
     expect(cell.bubbleView.bubbleImageView.image).toNot.beNil;
     expect(cell.bubbleView.bubbleViewLabel.text).to.beNil;
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyTextCheckingTypeLink
@@ -137,6 +149,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     NSRange phoneNumberRange = [linkAndPhoneNumber rangeOfString:phoneNumber];
     NSDictionary *phoneNumberAttributes = [cell.bubbleView.bubbleViewLabel.attributedText attributesAtIndex:phoneNumberRange.location effectiveRange:&phoneNumberRange];
     expect(phoneNumberAttributes[NSUnderlineStyleAttributeName]).toNot.equal(NSUnderlineStyleSingle);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyTextCheckingTypePhoneNumber
@@ -157,6 +171,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     NSRange phoneNumberRange = [linkAndPhoneNumber rangeOfString:phoneNumber];
     NSDictionary *phoneNumberAttributes = [cell.bubbleView.bubbleViewLabel.attributedText attributesAtIndex:phoneNumberRange.location effectiveRange:&phoneNumberRange];
     expect(phoneNumberAttributes[NSUnderlineStyleAttributeName]).to.equal(NSUnderlineStyleSingle);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifytextCheckingTypeLinkAndPhoneNumber
@@ -178,6 +194,9 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     NSRange phoneNumberRange = [linkAndPhoneNumber rangeOfString:phoneNumber];
     NSDictionary *phoneNumberAttributes = [cell.bubbleView.bubbleViewLabel.attributedText attributesAtIndex:phoneNumberRange.location effectiveRange:&phoneNumberRange];
     expect(phoneNumberAttributes[NSUnderlineStyleAttributeName]).to.equal(NSUnderlineStyleSingle);
+    
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 #pragma mark - Outgoing Customization
@@ -191,6 +210,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLOutgoingMessageCollectionViewCell *cell = (ATLOutgoingMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                 inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.messageTextFont).to.equal(font);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyOutgoingCustomMessageTextColor
@@ -202,6 +223,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLOutgoingMessageCollectionViewCell *cell = (ATLOutgoingMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                 inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.messageTextColor).to.equal(color);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyOutgoingCustomMessageLinkTextColor
@@ -213,6 +236,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
 
     ATLOutgoingMessageCollectionViewCell *cell = (ATLOutgoingMessageCollectionViewCell *)[tester waitForViewWithAccessibilityLabel:[NSString stringWithFormat:@"Message: %@", testText]];
     expect(cell.messageLinkTextColor).to.equal(color);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyOutgoingCustomBubbleViewColor
@@ -224,6 +249,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLOutgoingMessageCollectionViewCell *cell = (ATLOutgoingMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                 inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.bubbleViewColor).to.equal(color);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyOutgoingCustomBubbleViewCornerRadius
@@ -235,6 +262,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLOutgoingMessageCollectionViewCell *cell = (ATLOutgoingMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                 inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.bubbleViewCornerRadius).to.equal(radius);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 #pragma mark - Incoming Customization
@@ -248,6 +277,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLIncomingMessageCollectionViewCell *cell = (ATLIncomingMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                             inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.messageTextFont).to.equal(font);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyIncomingCustomMessageTextColor
@@ -259,6 +290,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLIncomingMessageCollectionViewCell *cell = (ATLIncomingMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                             inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.messageTextColor).to.equal(color);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyIncomingCustomMessageLinkTextColor
@@ -270,6 +303,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     
     ATLIncomingMessageCollectionViewCell *cell = (ATLIncomingMessageCollectionViewCell *)[tester waitForViewWithAccessibilityLabel:[NSString stringWithFormat:@"Message: %@", testText]];
     expect(cell.messageLinkTextColor).to.equal(color);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyIncomingCustomBubbleViewColor
@@ -281,6 +316,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLIncomingMessageCollectionViewCell *cell = (ATLIncomingMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                             inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.bubbleViewColor).to.equal(color);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyIncomingCustomBubbleViewCornerRadius
@@ -292,7 +329,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLIncomingMessageCollectionViewCell *cell = (ATLIncomingMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                             inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.bubbleViewCornerRadius).to.equal(radius);
-}
+    cell.bubbleView = nil;
+    cell = nil;}
 
 - (void)testToVerifyAvatarImageDiameter
 {
@@ -308,6 +346,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLMessageCollectionViewCell *cell = (ATLMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                      inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.avatarImageView.avatarImageViewDiameter).to.equal(40);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)testToVerifyAvatarImageBackgroundColor
@@ -325,6 +365,8 @@ extern NSString *const ATLConversationCollectionViewAccessibilityIdentifier;
     ATLMessageCollectionViewCell *cell = (ATLMessageCollectionViewCell *)[tester waitForCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]
                                                                      inCollectionViewWithAccessibilityIdentifier:ATLConversationCollectionViewAccessibilityIdentifier];
     expect(cell.avatarImageView.imageViewBackgroundColor).to.equal([UIColor redColor]);
+    cell.bubbleView = nil;
+    cell = nil;
 }
 
 - (void)sendMessageWithText:(NSString *)text
