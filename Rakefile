@@ -63,7 +63,7 @@ if defined?(XCTasks)
     t.subtasks = { progammatic: 'ProgrammaticTests'}
     t.destination do |d|
       d.platform = :iossimulator
-      d.os = :latest
+      d.os = 'iphonesimulator'
       d.name = 'iPhone 6 Plus'
     end    
   end
