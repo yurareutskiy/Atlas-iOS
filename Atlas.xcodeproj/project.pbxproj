@@ -14,12 +14,10 @@
 		65811455E2D8CD07BFC8470A /* Pods_ProgrammaticTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E01BBA899F606953D3082209 /* Pods_ProgrammaticTests.framework */; };
 		948ED7DB3DFD18A360693A2D /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DE31FA9B1906CEA04D0C891 /* Pods.framework */; };
 		AD72E4E4A5415CD6C17C53DE /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DE31FA9B1906CEA04D0C891 /* Pods.framework */; };
-		D0294DE71A93F37A00702856 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D0294DE61A93F37A00702856 /* Info.plist */; };
 		D0294DE81A93F39300702856 /* ATLMediaStreamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D0294DE41A93F37000702856 /* ATLMediaStreamTests.m */; };
 		D02CDCDB1A9FFC930013CBE8 /* ATLTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D02CDCDA1A9FFC930013CBE8 /* ATLTestUtilities.m */; };
 		D02CDCDD1A9FFC930013CBE8 /* ATLTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D02CDCDA1A9FFC930013CBE8 /* ATLTestUtilities.m */; };
 		D04517141A9F9A0C00E137D9 /* ATLMediaAttachmentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D04517131A9F9A0C00E137D9 /* ATLMediaAttachmentTests.m */; };
-		D6261A711C88EFAE00707D25 /* Programmatic-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D6261A701C88EFAE00707D25 /* Programmatic-Info.plist */; };
 		D6261A731C88EFBB00707D25 /* Storyboard-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D6261A721C88EFBB00707D25 /* Storyboard-Info.plist */; };
 		D6C045451A9914090028E9D0 /* ProgrammaticAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D6C045441A9914080028E9D0 /* ProgrammaticAppDelegate.m */; };
 		D6C0454B1A9941CD0028E9D0 /* test-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = D63C68DF1A94250000D235D5 /* test-logo.png */; };
@@ -762,7 +760,7 @@
 		D0D778891A02E2B2000A5F51 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0720;
 				TargetAttributes = {
 					D0294DD71A93F33900702856 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -833,9 +831,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6261A711C88EFAE00707D25 /* Programmatic-Info.plist in Resources */,
 				D6C0454B1A9941CD0028E9D0 /* test-logo.png in Resources */,
-				D0294DE71A93F37A00702856 /* Info.plist in Resources */,
 				D6F405E71A8FDE3900AE9581 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
