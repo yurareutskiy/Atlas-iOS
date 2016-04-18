@@ -88,6 +88,7 @@ The complete API documentation can be found on [CocoaDocs](http://cocoadocs.org/
 Atlas can be installed directly into your application via CocoaPods or by directly importing the source code files. Please note that Atlas has a direct dependency on LayerKit that must be satisfied in order to build the components.
 
 #### CocoaPods Installation
+**Note:** We currently do not support any beta version of CocoaPods 1.0.0 due to a [breaking change](https://github.com/CocoaPods/CocoaPods/issues/4950#issuecomment-196289770). Please use Cocoapods 0.39.x.
 
 The recommended path for installation is [CocoaPods](http://cocoapods.org/). CocoaPods provides a simple, versioned dependency management system that automates the tedious and error prone aspects of manually configuring libraries and frameworks. You can add Atlas to your project via CocoaPods by doing the following:
 
