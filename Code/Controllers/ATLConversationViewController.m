@@ -31,6 +31,7 @@
 #import "ATLMediaAttachment.h"
 #import "ATLLocationManager.h"
 #import "LYRIdentity+ATLParticipant.h"
+#import "ATLInputView.h"
 
 @import AVFoundation;
 
@@ -563,13 +564,40 @@ static NSInteger const ATLPhotoActionSheet = 1000;
         [messageInputToolbar.textInputView resignFirstResponder];
     }
     
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
-                                                             delegate:self
-                                                    cancelButtonTitle:ATLLocalizedString(@"atl.conversation.toolbar.actionsheet.cancel.key", @"Cancel", nil)
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:ATLLocalizedString(@"atl.conversation.toolbar.actionsheet.takephoto.key", @"Take Photo/Video", nil), ATLLocalizedString(@"atl.conversation.toolbar.actionsheet.lastphoto.key", @"Last Photo/Video", nil), ATLLocalizedString(@"atl.conversation.toolbar.actionsheet.library.key", @"Photo/Video Library", nil), nil];
-    [actionSheet showInView:self.view];
-    actionSheet.tag = ATLPhotoActionSheet;
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction *action1 = [UIAlertAction actionWithTitle:ATLLocalizedString(@"atl.conversation.toolbar.actionsheet.takephoto.key", @"Take Photo/Video", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self showInputView:nil];
+        [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypeCamera];
+    }];
+    [alertController addAction:action1];
+    UIAlertAction *action2 = [UIAlertAction actionWithTitle:ATLLocalizedString(@"atl.conversation.toolbar.actionsheet.lastphoto.key", @"Last Photo/Video", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self showInputView:nil];
+        [self captureLastPhotoTaken];
+    }];
+    [alertController addAction:action2];
+    UIAlertAction *action3 = [UIAlertAction actionWithTitle:ATLLocalizedString(@"atl.conversation.toolbar.actionsheet.library.key", @"Photo/Video Library", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self showInputView:nil];
+        [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    }];
+    [alertController addAction:action3];
+    
+    if ([self.delegate respondsToSelector:@selector(inputViewsForConversationViewController:)]) {
+        NSArray *inputViews = [self.delegate inputViewsForConversationViewController:self];
+        for (id<ATLInputView> view in inputViews) {
+            if ([view isKindOfClass:[UIView class]]) {
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Input views must be of type `UIView." userInfo:nil];
+            }
+            UIAlertAction *action = [UIAlertAction actionWithTitle:[(id<ATLInputView>)view title] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self showInputView:view];
+            }];
+            [alertController addAction:action];
+        }
+    }
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:ATLLocalizedString(@"atl.conversation.toolbar.actionsheet.cancel.key", @"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    [alertController addAction:cancelAction];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapRightAccessoryButton:(UIButton *)rightAccessoryButton
@@ -684,30 +712,6 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     [self sendMessage:message];
 }
 
-#pragma mark - UIActionSheetDelegate
-
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    if (actionSheet.tag == ATLPhotoActionSheet) {
-        switch (buttonIndex) {
-            case 0:
-                [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypeCamera];
-                break;
-                
-            case 1:
-                [self captureLastPhotoTaken];
-                break;
-                
-            case 2:
-                [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-                break;
-                
-            default:
-                break;
-        }
-    }
-}
-
 #pragma mark - Image Picking
 
 - (void)displayImagePickerWithSourceType:(UIImagePickerControllerSourceType)sourceType;
@@ -773,6 +777,19 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     
     // Workaround for collection view not displayed on iOS 7.1.
     [self.collectionView setNeedsLayout];
+}
+
+#pragma mark - Input View Handling
+
+- (void)showInputView:(UIView<ATLInputView> *)inputView
+{
+    self.messageInputToolbar.textInputView.inputView = inputView;
+    
+    if (![self.messageInputToolbar.textInputView isFirstResponder] && inputView) {
+        [self.messageInputToolbar.textInputView becomeFirstResponder];
+    } else {
+        [self.messageInputToolbar.textInputView reloadInputViews];
+    }
 }
 
 #pragma mark - Notification Handlers

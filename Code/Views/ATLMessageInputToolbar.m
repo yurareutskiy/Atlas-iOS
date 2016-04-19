@@ -338,6 +338,12 @@ static CGFloat const ATLButtonHeight = 28.0f;
     return YES;
 }
 
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    self.textInputView.inputView = nil;
+    [self.textInputView reloadInputViews];
+}
+
 #pragma mark - Helpers
 
 - (NSArray *)mediaAttachmentsFromAttributedString:(NSAttributedString *)attributedString

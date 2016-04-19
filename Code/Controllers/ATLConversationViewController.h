@@ -32,6 +32,7 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
 
 @class ATLConversationViewController;
 @protocol ATLMessagePresenting;
+@protocol ATLInputView;
 
 ///---------------------------------------
 /// @name Delegate
@@ -98,6 +99,16 @@ NS_ASSUME_NONNULL_BEGIN
  a call to `registerClass:forMessageCellWithReuseIdentifier:`. They should also implement the optional data source method, `conversationViewController:reuseIdentifierForMessage:`.
  */
 - (NSOrderedSet <LYRMessage*> *)conversationViewController:(ATLConversationViewController *)viewController messagesForMediaAttachments:(NSArray <ATLMediaAttachment*> *)mediaAttachments;
+
+/**
+ @abstract Asks the delegate for an `NSArray` of views that conform to the `ATLInputview` protocol.
+ @param viewController The `ATLConversationViewController` instance that will use the input views.
+ @return An `NSArray` of `UIView` objects that conform to `ATLInputView`. If `nil` is returned, the controller will fall back to default behavior.
+ @discussion This is called whenever the user taps the left accessory icon, and is a way to extend Atlas functionality.  Input views added here will be selectable
+ based on their `title` property defined from the `ATLInputview` protocol, and the inputView will be shown.  It is up to the application to handle content selection,
+ message creation, and message sending, as well as resetting of the inputview.
+ */
+- (NSArray <ATLInputView> *)inputViewsForConversationViewController:(ATLConversationViewController *)viewController;
 
 @end
 
