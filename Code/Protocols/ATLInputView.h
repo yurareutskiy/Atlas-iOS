@@ -28,6 +28,6 @@
 /**
  @abstract The title that should be used when displaying the input view option when the message input toolbar left accessory button is tapped.
  */
-@property (nonatomic, readonly) NSString *title;
+@property (nonatomic, readonly) NSString *atlasAlertActionTitle;
 
 @end
