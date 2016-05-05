@@ -587,7 +587,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
             if ([view isKindOfClass:[UIView class]]) {
                 @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Input views must be of type `UIView." userInfo:nil];
             }
-            UIAlertAction *action = [UIAlertAction actionWithTitle:[(id<ATLInputView>)view title] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            UIAlertAction *action = [UIAlertAction actionWithTitle:[(id<ATLInputView>)view atlasAlertActionTitle] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                 [self showInputView:view];
             }];
             [alertController addAction:action];
