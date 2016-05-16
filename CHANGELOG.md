@@ -1,5 +1,15 @@
 # Atlas Changelog
 
+## 1.0.23
+
+### Enhancements
+
+* Adds support for `Cocoapods 1.0.0`
+
+### Bug Fixes
+
+* Fixes a resource bundle issue when building with `Carthage`.
+
 ## 1.0.22
 
 ### Bug Fixes
