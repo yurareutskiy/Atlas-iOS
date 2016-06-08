@@ -1177,10 +1177,12 @@ static NSInteger const ATLPhotoActionSheet = 1000;
           forChangeType:(LYRQueryControllerChangeType)type
            newIndexPath:(NSIndexPath *)newIndexPath
 {
-    if (self.expandingPaginationWindow) return;
-    NSInteger currentIndex = indexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:indexPath.row] : NSNotFound;
-    NSInteger newIndex = newIndexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:newIndexPath.row] : NSNotFound;
-    [self.objectChanges addObject:[ATLDataSourceChange changeObjectWithType:type newIndex:newIndex currentIndex:currentIndex]];
+    if (controller == self.queryController) {
+        if (self.expandingPaginationWindow) return;
+        NSInteger currentIndex = indexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:indexPath.row] : NSNotFound;
+        NSInteger newIndex = newIndexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:newIndexPath.row] : NSNotFound;
+        [self.objectChanges addObject:[ATLDataSourceChange changeObjectWithType:type newIndex:newIndex currentIndex:currentIndex]];
+    }
 }
 
 - (void)queryControllerWillChangeContent:(LYRQueryController *)queryController
@@ -1190,64 +1192,66 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 
 - (void)queryControllerDidChangeContent:(LYRQueryController *)queryController
 {
-    NSArray *objectChanges = [self.objectChanges copy];
-    [self.objectChanges removeAllObjects];
-    
-    if (self.expandingPaginationWindow) {
-        self.expandingPaginationWindow = NO;
-        self.showingMoreMessagesIndicator = [self.conversationDataSource moreMessagesAvailable];
-        [self reloadCollectionViewAdjustingForContentHeightChange];
-        return;
-    }
-    
-    if (objectChanges.count == 0) {
-        [self configurePaginationWindow];
-        [self configureMoreMessagesIndicatorVisibility];
-        return;
-    }
-    
-    // Prevent scrolling if user has scrolled up into the conversation history.
-    BOOL shouldScrollToBottom = [self shouldScrollToBottom];
-    
-    // ensure the animation's queue will resume
-    if (self.collectionView) {
-        dispatch_suspend(self.animationQueue);
-        [self.collectionView performBatchUpdates:^{
-            for (ATLDataSourceChange *change in objectChanges) {
-                switch (change.type) {
-                    case LYRQueryControllerChangeTypeInsert:
-                        [self.collectionView insertSections:[NSIndexSet indexSetWithIndex:change.newIndex]];
-                        break;
-                        
-                    case LYRQueryControllerChangeTypeMove:
-                        [self.collectionView moveSection:change.currentIndex toSection:change.newIndex];
-                        break;
-                        
-                    case LYRQueryControllerChangeTypeDelete:
-                        [self.collectionView deleteSections:[NSIndexSet indexSetWithIndex:change.currentIndex]];
-                        break;
-                        
-                    case LYRQueryControllerChangeTypeUpdate:
-                        // If we call reloadSections: for a section that is already being animated due to another move (e.g. moving section 17 to 16 causes section 16 to be moved/animated to 17 and then we also reload section 16), UICollectionView will throw an exception. But since all onscreen sections will be reconfigured (see below) we don't need to reload the sections here anyway.
-                        break;
-                        
-                    default:
-                        break;
+    if (queryController == self.queryController) {
+        NSArray *objectChanges = [self.objectChanges copy];
+        [self.objectChanges removeAllObjects];
+        
+        if (self.expandingPaginationWindow) {
+            self.expandingPaginationWindow = NO;
+            self.showingMoreMessagesIndicator = [self.conversationDataSource moreMessagesAvailable];
+            [self reloadCollectionViewAdjustingForContentHeightChange];
+            return;
+        }
+        
+        if (objectChanges.count == 0) {
+            [self configurePaginationWindow];
+            [self configureMoreMessagesIndicatorVisibility];
+            return;
+        }
+        
+        // Prevent scrolling if user has scrolled up into the conversation history.
+        BOOL shouldScrollToBottom = [self shouldScrollToBottom];
+        
+        // ensure the animation's queue will resume
+        if (self.collectionView) {
+            dispatch_suspend(self.animationQueue);
+            [self.collectionView performBatchUpdates:^{
+                for (ATLDataSourceChange *change in objectChanges) {
+                    switch (change.type) {
+                        case LYRQueryControllerChangeTypeInsert:
+                            [self.collectionView insertSections:[NSIndexSet indexSetWithIndex:change.newIndex]];
+                            break;
+                            
+                        case LYRQueryControllerChangeTypeMove:
+                            [self.collectionView moveSection:change.currentIndex toSection:change.newIndex];
+                            break;
+                            
+                        case LYRQueryControllerChangeTypeDelete:
+                            [self.collectionView deleteSections:[NSIndexSet indexSetWithIndex:change.currentIndex]];
+                            break;
+                            
+                        case LYRQueryControllerChangeTypeUpdate:
+                            // If we call reloadSections: for a section that is already being animated due to another move (e.g. moving section 17 to 16 causes section 16 to be moved/animated to 17 and then we also reload section 16), UICollectionView will throw an exception. But since all onscreen sections will be reconfigured (see below) we don't need to reload the sections here anyway.
+                            break;
+                            
+                        default:
+                            break;
+                    }
                 }
-            }
-        } completion:^(BOOL finished) {
-            dispatch_resume(self.animationQueue);
-        }];
-    }
-    [self configureCollectionViewElements];
-    
-    if (shouldScrollToBottom)  {
-        // We can't get the content size from the collection view because it will be out-of-date due to the above updates, but we can get the update-to-date size from the layout.
-        CGSize contentSize = self.collectionView.collectionViewLayout.collectionViewContentSize;
-        [self.collectionView setContentOffset:[self bottomOffsetForContentSize:contentSize] animated:YES];
-    } else {
-        [self configurePaginationWindow];
-        [self configureMoreMessagesIndicatorVisibility];
+            } completion:^(BOOL finished) {
+                dispatch_resume(self.animationQueue);
+            }];
+        }
+        [self configureCollectionViewElements];
+        
+        if (shouldScrollToBottom)  {
+            // We can't get the content size from the collection view because it will be out-of-date due to the above updates, but we can get the update-to-date size from the layout.
+            CGSize contentSize = self.collectionView.collectionViewLayout.collectionViewContentSize;
+            [self.collectionView setContentOffset:[self bottomOffsetForContentSize:contentSize] animated:YES];
+        } else {
+            [self configurePaginationWindow];
+            [self configureMoreMessagesIndicatorVisibility];
+        }
     }
 }
 
