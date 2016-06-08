@@ -21,12 +21,13 @@
 #import <UIKit/UIKit.h>
 #import "ATLParticipantTableViewCell.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class ATLParticipantTableViewController;
 
 /**
  @abstract The `ATLParticipantViewControllerDelegate` protocol provides a method for notifying the adopting delegate about information changes.
  */
-NS_ASSUME_NONNULL_BEGIN
 @protocol ATLParticipantTableViewControllerDelegate <NSObject>
 
 /**
@@ -114,5 +115,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) BOOL allowsMultipleSelection;
 
+/**
+ @abstract Reloads the cell for the given participant.
+ @param participant The participant object to reload the corresponding cell of. Cannot be `nil`.
+ */
+- (void)reloadCellForParticipant:(id<ATLParticipant>)participant;
+
 @end
+
 NS_ASSUME_NONNULL_END

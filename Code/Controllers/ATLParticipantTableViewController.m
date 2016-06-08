@@ -35,6 +35,7 @@ static NSString *const ATLParticipantCellIdentifier = @"ATLParticipantCellIdenti
 @property (nonatomic) NSMutableSet *selectedParticipants;
 @property (nonatomic) UISearchBar *searchBar;
 @property (nonatomic) BOOL hasAppeared;
+@property (nonatomic) dispatch_queue_t animationQueue;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -79,7 +80,8 @@ NSString *const ATLParticipantTableViewControllerTitle = @"Participants";
     _cellClass = [ATLParticipantTableViewCell class];
     _rowHeight = 48;
     _allowsMultipleSelection = YES;
-    _selectedParticipants = [[NSMutableSet alloc] init];
+    _selectedParticipants = [NSMutableSet new];
+    _animationQueue = dispatch_queue_create("com.atlas.ATLParticipantTableViewController.animationQueue", DISPATCH_QUEUE_SERIAL);
 }
 
 - (void)loadView
@@ -176,6 +178,17 @@ NSString *const ATLParticipantTableViewControllerTitle = @"Participants";
         @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Cannot change sort type after view has been presented" userInfo:nil];
     }
     _sortType = sortType;
+}
+
+- (void)reloadCellForParticipant:(id<ATLParticipant>)participant
+{
+    dispatch_async(self.animationQueue, ^{
+        ATLParticipantTableDataSet *dataSet = [self dataSetForTableView:self.tableView];
+        NSIndexPath *indexPath = [dataSet indexPathForParticipant:participant];
+        if (indexPath) {
+            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
+    });
 }
 
 #pragma mark - UISearchDisplayDelegate
