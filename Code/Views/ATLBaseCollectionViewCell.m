@@ -35,7 +35,6 @@ CGFloat const ATLAvatarImageTailPadding = 4.0f;
 @property (nonatomic) NSLayoutConstraint *bubbleViewWidthConstraint;
 
 @property (nonatomic) BOOL messageSentState;
-@property (nonatomic) BOOL shouldDisplayAvatar;
 
 @end
 
@@ -107,6 +106,15 @@ CGFloat const ATLAvatarImageTailPadding = 4.0f;
     [self.contentView addConstraint:self.bubbleViewWidthConstraint];
 }
 
+- (void)setShouldDisplayAvatar:(BOOL)shouldDisplayAvatar
+{
+    if (shouldDisplayAvatar) {
+        self.avatarImageView.hidden = NO;
+    } else {
+        self.avatarImageView.hidden = YES;
+    }
+}
+
 - (void)presentMessage:(LYRMessage *)message
 {
     self.message = message;
@@ -131,10 +139,10 @@ CGFloat const ATLAvatarImageTailPadding = 4.0f;
 - (void)updateWithSender:(id<ATLParticipant>)sender
 {
     if (sender) {
-        self.avatarImageView.hidden = NO;
+        self.shouldDisplayAvatar = YES;
         self.avatarImageView.avatarItem = sender;
     } else {
-        self.avatarImageView.hidden = YES;
+        self.shouldDisplayAvatar = NO;
     }
 }
 

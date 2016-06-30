@@ -48,6 +48,11 @@ extern CGFloat const ATLMessageCellHorizontalMargin;
 @property (nonatomic) ATLAvatarImageView *avatarImageView;
 
 /**
+ @abstract Determines if the cell should display the `ATLAvatarImageView`
+ */
+@property (nonatomic) BOOL shouldDisplayAvatar;
+
+/**
  @abstract The `LYRMessage` object passed in `ATLMessagePresenting` protocol `presentMessage:`.
  */
 @property (nonatomic) LYRMessage *message;
