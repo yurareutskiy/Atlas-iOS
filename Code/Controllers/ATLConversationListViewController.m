@@ -27,6 +27,7 @@ static NSString *const ATLImageMIMETypePlaceholderText = @"Attachment: Image";
 static NSString *const ATLVideoMIMETypePlaceholderText = @"Attachment: Video";
 static NSString *const ATLLocationMIMETypePlaceholderText = @"Attachment: Location";
 static NSString *const ATLGIFMIMETypePlaceholderText = @"Attachment: GIF";
+static NSInteger const ATLPaginationWindow = 20;
 
 @interface ATLConversationListViewController () <UIActionSheetDelegate, LYRQueryControllerDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchDisplayDelegate>
 
@@ -251,6 +252,7 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
         return;
     }
     [self.tableView reloadData];
+    self.queryController.paginationWindow = ATLPaginationWindow;
 }
 
 #pragma mark - UITableViewDataSource
@@ -473,6 +475,24 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
             [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
         }
         self.conversationSelectedBeforeContentChange = nil;
+    }
+}
+
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    [self configurePaginationWindow];
+}
+
+#pragma mark - Pagination
+
+- (void)configurePaginationWindow
+{
+    if (self.queryController.paginationWindow < self.queryController.totalNumberOfObjects) {
+        if(self.tableView.contentOffset.y >= (self.tableView.contentSize.height - self.tableView.frame.size.height) - _rowHeight) {
+            self.queryController.paginationWindow += self.queryController.paginationWindow + ATLPaginationWindow < self.queryController.totalNumberOfObjects ? ATLPaginationWindow : self.queryController.totalNumberOfObjects - self.queryController.paginationWindow;
+        }
     }
 }
 
